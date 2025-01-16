@@ -133,7 +133,11 @@ public class Manual extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             moveRobot(drive, strafe, turn);
-
+            telemetry.addData("left front", leftFrontDrive.getCurrentPosition());
+            telemetry.addData("right front", rightFrontDrive.getCurrentPosition());
+            telemetry.addData("right back", rightBackDrive.getCurrentPosition());
+            telemetry.addData("left back", leftBackDrive.getCurrentPosition());
+            telemetry.update();
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
 
 
