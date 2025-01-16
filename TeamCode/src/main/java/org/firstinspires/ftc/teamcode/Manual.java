@@ -123,7 +123,7 @@ public class Manual extends LinearOpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        // Wait for the game to start (driver presses START)
+        // Wait for the game to start (driver presses SART)
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
