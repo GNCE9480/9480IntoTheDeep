@@ -32,6 +32,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.Range;
@@ -80,17 +82,25 @@ import java.util.concurrent.TimeUnit;
 @TeleOp(name="9480 Manual", group="Linear OpMode") //change name "" to show different name in the app interface
 
 public class Manual extends LinearOpMode {
-    ArmControl arm = new ArmControl(); //object used to call methods from within our arms class.
-
+    //ArmControl armCenter = new ArmControl(); //object used to call methods from within our arms class.
     // Declare OpMode members for each of the 4 motors.
-    //private ElapsedTime runtime = new ElapsedTime();
+    private ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftFrontDrive = null;
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
+    private DcMotor armDrive = null;
+    private DcMotor rightSlideDrive = null;
+    private DcMotor leftSlideDrive = null;
+    private Servo wristDrive = null;
+    private Servo clawDrive = null;
     double drive = 0;
     double strafe = 0;
     double turn = 0;
+    double arm = 0;
+    double slides = 0;
+    double wrist = 0;
+    double claw = 0;
 
     @Override
     public void runOpMode() {
@@ -105,6 +115,11 @@ public class Manual extends LinearOpMode {
         leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+        clawDrive = hardwareMap.get(Servo.class, "center_claw");
+        wristDrive = hardwareMap.get(Servo.class, "center_wrist");
+        leftSlideDrive = hardwareMap.get(DcMotor.class, "left_slide");
+        rightSlideDrive = hardwareMap.get(DcMotor.class, "right_slide");
+        armDrive = hardwareMap.get(DcMotor.class, "center_arm");
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -117,7 +132,7 @@ public class Manual extends LinearOpMode {
         // Reverse the direction (flip FORWARD <-> REVERSE ) of any wheel that runs backward
         // Keep testing until ALL the wheels move the robot forward when you push the left joystick forward.
 
-        //set to personal prference
+        //set to personal preference
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -128,15 +143,22 @@ public class Manual extends LinearOpMode {
         telemetry.update();
 
         waitForStart();
-       // runtime.reset();
+        runtime.reset();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            // helper function to drive
             moveRobot(drive, strafe, turn);
+            moveArm(arm, slides, wrist, claw);
+
             telemetry.addData("left front", leftFrontDrive.getCurrentPosition());
             telemetry.addData("right front", rightFrontDrive.getCurrentPosition());
             telemetry.addData("right back", rightBackDrive.getCurrentPosition());
             telemetry.addData("left back", leftBackDrive.getCurrentPosition());
+            telemetry.addData("slides", leftSlideDrive.getCurrentPosition());
+            telemetry.addData("arm", armDrive.getCurrentPosition());
+            telemetry.addData("wrist", wristDrive.getPosition());
+            telemetry.addData("claw", clawDrive.getPosition());
             telemetry.update();
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
 
@@ -192,9 +214,48 @@ public class Manual extends LinearOpMode {
         rightBackDrive.setPower(rightBackPower);
 
         // Show the wheel power.
-
+        telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
         telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
         telemetry.update();
+    }
+
+    public void moveArm(double arm, double slides, double wrist, double claw){
+        arm    =  gamepad2.left_stick_x;
+        slides = gamepad2.left_stick_y;
+        wrist = gamepad2.right_stick_y;
+        claw = gamepad2.right_stick_x;
+        // Combine the joystick requests for each axis-motion to determine each wheel's power.
+        // Set up a variable for each drive wheel to save the power level for telemetry.
+        double armPower  = arm * 1.0;
+        double slidesPower = slides * 1.0;
+        double wristPower   = wrist * 1.0;
+        double clawPower  = claw * 1.0;
+
+        // Normalize the values so no wheel power exceeds 100%
+        // This ensures that the robot maintains the desired motion.
+        double max = Math.max(Math.abs(armPower), Math.abs(slidesPower));
+        max = Math.max(max, Math.abs(wristPower));
+        max = Math.max(max, Math.abs(clawPower));
+
+        if (max > 1.0) {
+            armPower  /= max;
+            slidesPower /= max;
+            wristPower   /= max;
+            clawPower  /= max;
+        }
+        // Send calculated power to wheels
+        armDrive.setPower(armPower);
+        leftSlideDrive.setPower(slidesPower);
+        rightSlideDrive.setPower(-slidesPower);
+        wristDrive.setPosition(wristPower);
+        clawDrive.setPosition(clawPower);
+        // Show the arm power.
+        telemetry.addData("Slides", "%4.2f", slidesPower);
+        telemetry.addData("Arm", "%4.2f", armPower);
+        telemetry.addData("Slides", "%4.2f", wristPower);
+        telemetry.addData("Arm", "%4.2f", clawPower);
+        telemetry.update();
+
     }
 }
