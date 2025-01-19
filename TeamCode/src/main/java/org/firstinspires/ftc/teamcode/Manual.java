@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import java.util.*;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -43,9 +45,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDir
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
-import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -101,14 +101,19 @@ public class Manual extends LinearOpMode {
     double slides = 0;
     double wrist = 0;
     double claw = 0;
+    double wristClicks = 0; //TODO - set figure this out on team computer
+    double slideMinInches = 11.81;
+
+
 
     @Override
+
     public void runOpMode() {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
 
-        //TODO: Open the FTC Robot controller app on the phone, turn on the robot, and pair the two.
+        //Open the FTC Robot controller app on the phone, turn on the robot, and pair the two.
         // find your way to the config panel for the control hub. make sure the motors are paired with the right plugs
         // name them appropriately(left_front, left_back, etc). make names match the 'deviceName' tab here.
         leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
@@ -137,6 +142,8 @@ public class Manual extends LinearOpMode {
         leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        leftSlideDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightSlideDrive.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");
@@ -145,11 +152,15 @@ public class Manual extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
+
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+
+
             // helper function to drive
             moveRobot(drive, strafe, turn);
             moveArm(arm, slides, wrist, claw);
+            wristControls();
 
             telemetry.addData("left front", leftFrontDrive.getCurrentPosition());
             telemetry.addData("right front", rightFrontDrive.getCurrentPosition());
@@ -208,7 +219,7 @@ public class Manual extends LinearOpMode {
             rightBackPower  /= max;
         }
         // Send calculated power to wheels
-        leftFrontDrive.setPower(leftFrontPower);
+        leftFrontDrive.setPower(leftFrontPower); //reduce speed here if needed
         rightFrontDrive.setPower(rightFrontPower);
         leftBackDrive.setPower(leftBackPower);
         rightBackDrive.setPower(rightBackPower);
@@ -217,7 +228,11 @@ public class Manual extends LinearOpMode {
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
         telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-        telemetry.update();
+        if (extendYAxis(armDrive.getCurrentPosition(), leftSlideDrive.getCurrentPosition()) > 42){
+            armDrive.setPower(0);
+            leftSlideDrive.setPower(0);
+            rightSlideDrive.setPower(0);
+        }
     }
 
     public void moveArm(double arm, double slides, double wrist, double claw){
@@ -227,8 +242,8 @@ public class Manual extends LinearOpMode {
         claw = gamepad2.right_stick_x;
         // Combine the joystick requests for each axis-motion to determine each wheel's power.
         // Set up a variable for each drive wheel to save the power level for telemetry.
-        double armPower  = arm * 1.0;
-        double slidesPower = slides * 1.0;
+        double armPower  = arm * 0.9;
+        double slidesPower = slides * 0.75;
         double wristPower   = wrist * 1.0;
         double clawPower  = claw * 1.0;
 
@@ -247,7 +262,7 @@ public class Manual extends LinearOpMode {
         // Send calculated power to wheels
         armDrive.setPower(armPower);
         leftSlideDrive.setPower(slidesPower);
-        rightSlideDrive.setPower(-slidesPower);
+        rightSlideDrive.setPower(slidesPower);
         wristDrive.setPosition(wristPower);
         clawDrive.setPosition(clawPower);
         // Show the arm power.
@@ -255,7 +270,39 @@ public class Manual extends LinearOpMode {
         telemetry.addData("Arm", "%4.2f", armPower);
         telemetry.addData("Slides", "%4.2f", wristPower);
         telemetry.addData("Arm", "%4.2f", clawPower);
-        telemetry.update();
+
+
 
     }
+
+    public void clawControls(){
+
+
+    }
+    public void wristControls(){
+        if (gamepad2.right_stick_y > 0.01){
+            wristClicks = wristDrive.getPosition()+gamepad2.right_stick_y*0.05;//0.05 is just the turn rate
+            if (wristClicks >= 0.05){ //0.05 is placeholder for wrist limit
+                wristClicks = 0.05;
+            }
+            else if (wristClicks <= 0){
+                wristClicks = 0;
+            }
+            wristDrive.setPosition(wristClicks);
+        }
+        telemetry.addData("Wrist Clicks", wristDrive.getPosition());
+    }
+    public double wormToDeg(double wormPosClicks){
+        return (-401 * wormPosClicks +200)+0; //TODO - make sure this works/ that the conversion rate is correct
+    }
+    private double slideToInches(double clicks) {
+        return clicks / 84.7 + slideMinInches;
+    }
+    private double extendYAxis(double wormClicks, double slideClicks){
+        double slideInch = slideClicks / 84.7 + slideMinInches;
+        double wormDeg = (-401 * wormClicks +200)+0;
+        return Math.cos(Math.toRadians(wormDeg))*slideInch;
+
+    }
+
 }

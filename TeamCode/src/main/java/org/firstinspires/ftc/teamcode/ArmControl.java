@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -18,12 +19,20 @@ public class ArmControl {
     //put all variables, methods, driver inputs and other for arms here
     //REMEMBER ARM INIT
     public void armInit() {
-        wormGear = myOpMode.hardwareMap.get(DcMotor.class, "worm_gear");
-        leftSlide = myOpMode.hardwareMap.get(DcMotor.class, "left_slide");
-        rightSlide = myOpMode.hardwareMap.get(DcMotor.class, "right_slide");
-        claw = myOpMode.hardwareMap.get(Servo.class, "claw");
-        wrist = myOpMode.hardwareMap.get(Servo.class, "wrist");
+
+
+        wormGear.setDirection(DcMotor.Direction.FORWARD);
+        leftSlide.setDirection(DcMotor.Direction.FORWARD);
+        rightSlide.setDirection(DcMotor.Direction.FORWARD);
+        claw.setDirection(Servo.Direction.FORWARD);
+        wrist.setDirection(Servo.Direction.FORWARD);
+
 
     }
+
+    public void setArm(double wormGear, double slides, double claw, double wrist){
+
+    }
+
 
 }
