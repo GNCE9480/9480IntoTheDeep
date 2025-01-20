@@ -35,6 +35,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -94,15 +95,16 @@ public class Manual extends LinearOpMode {
     private DcMotor leftSlideDrive = null;
     private Servo wristDrive = null;
     private Servo clawDrive = null;
+    private TouchSensor slideLimit = null;
     double drive = 0;
     double strafe = 0;
     double turn = 0;
     double arm = 0;
-    double slides = 0;
-    double wrist = 0;
-    double claw = 0;
-    double wristClicks = 0; //TODO - set figure this out on team computer
+    double wristClicks = 0.4; //TODO - set figure this out on team computer
     double slideMinInches = 11.81;
+    double clawOpenPos = 0.7;
+    double clawClosedPos = 0.58;
+    double clawClicks = 0.7;
 
 
 
@@ -125,6 +127,9 @@ public class Manual extends LinearOpMode {
         leftSlideDrive = hardwareMap.get(DcMotor.class, "left_slide");
         rightSlideDrive = hardwareMap.get(DcMotor.class, "right_slide");
         armDrive = hardwareMap.get(DcMotor.class, "center_arm");
+        slideLimit = hardwareMap.get(TouchSensor.class, "armLimitLeft");
+
+
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -149,8 +154,7 @@ public class Manual extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
-        waitForStart();
-        runtime.reset();
+        armInit();
 
 
         // run until the end of the match (driver presses STOP)
@@ -159,14 +163,17 @@ public class Manual extends LinearOpMode {
 
             // helper function to drive
             moveRobot(drive, strafe, turn);
-            moveArm(arm, slides, wrist, claw);
+            moveArm();
             wristControls();
+            clawControls();
+            slideControls();
 
             telemetry.addData("left front", leftFrontDrive.getCurrentPosition());
             telemetry.addData("right front", rightFrontDrive.getCurrentPosition());
             telemetry.addData("right back", rightBackDrive.getCurrentPosition());
             telemetry.addData("left back", leftBackDrive.getCurrentPosition());
-            telemetry.addData("slides", leftSlideDrive.getCurrentPosition());
+            telemetry.addData("left slide", leftSlideDrive.getCurrentPosition());
+            telemetry.addData("right slide", rightSlideDrive.getCurrentPosition());
             telemetry.addData("arm", armDrive.getCurrentPosition());
             telemetry.addData("wrist", wristDrive.getPosition());
             telemetry.addData("claw", clawDrive.getPosition());
@@ -234,62 +241,56 @@ public class Manual extends LinearOpMode {
             rightSlideDrive.setPower(0);
         }
     }
+    public void slideControls(){
 
-    public void moveArm(double arm, double slides, double wrist, double claw){
-        arm    =  gamepad2.left_stick_x;
-        slides = gamepad2.left_stick_y;
-        wrist = gamepad2.right_stick_y;
-        claw = gamepad2.right_stick_x;
-        // Combine the joystick requests for each axis-motion to determine each wheel's power.
-        // Set up a variable for each drive wheel to save the power level for telemetry.
-        double armPower  = arm * 0.9;
-        double slidesPower = slides * 0.75;
-        double wristPower   = wrist * 1.0;
-        double clawPower  = claw * 1.0;
 
-        // Normalize the values so no wheel power exceeds 100%
-        // This ensures that the robot maintains the desired motion.
-        double max = Math.max(Math.abs(armPower), Math.abs(slidesPower));
-        max = Math.max(max, Math.abs(wristPower));
-        max = Math.max(max, Math.abs(clawPower));
-
-        if (max > 1.0) {
-            armPower  /= max;
-            slidesPower /= max;
-            wristPower   /= max;
-            clawPower  /= max;
+        if (gamepad2.back || gamepad1.back){
+            leftSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
-        // Send calculated power to wheels
+
+    }
+
+    public void moveArm(){
+        arm    =  gamepad2.left_stick_y;
+        double armPower  = arm * 0.9;
+
+        // Send calculated power to arm
         armDrive.setPower(armPower);
-        leftSlideDrive.setPower(slidesPower);
-        rightSlideDrive.setPower(slidesPower);
-        wristDrive.setPosition(wristPower);
-        clawDrive.setPosition(clawPower);
-        // Show the arm power.
-        telemetry.addData("Slides", "%4.2f", slidesPower);
+
         telemetry.addData("Arm", "%4.2f", armPower);
-        telemetry.addData("Slides", "%4.2f", wristPower);
-        telemetry.addData("Arm", "%4.2f", clawPower);
+
 
 
 
     }
 
     public void clawControls(){
+            if (gamepad2.right_bumper){
+                clawClicks = clawOpenPos;
 
+            }
+            else if (gamepad2.left_bumper) {
+                clawClicks = clawClosedPos;
+            }
+            clawDrive.setPosition(clawClicks);
 
     }
     public void wristControls(){
-        if (gamepad2.right_stick_y > 0.01){
-            wristClicks = wristDrive.getPosition()+gamepad2.right_stick_y*0.05;//0.05 is just the turn rate
-            if (wristClicks >= 0.05){ //0.05 is placeholder for wrist limit
-                wristClicks = 0.05;
+        if (Math.abs(gamepad2.right_stick_y) > 0.03){
+            wristClicks = wristDrive.getPosition()+gamepad2.right_stick_y*0.01;//0.05 is just the turn rate
+
+
+            if (wristClicks >= 0.5){ //0.05 is placeholder for wrist limit
+                wristClicks = 0.5;
             }
-            else if (wristClicks <= 0){
-                wristClicks = 0;
+            else if (wristClicks <= 0.3){
+                wristClicks = 0.3;
             }
             wristDrive.setPosition(wristClicks);
         }
+        wristDrive.setPosition(wristClicks);
+
         telemetry.addData("Wrist Clicks", wristDrive.getPosition());
     }
     public double wormToDeg(double wormPosClicks){
@@ -301,8 +302,40 @@ public class Manual extends LinearOpMode {
     private double extendYAxis(double wormClicks, double slideClicks){
         double slideInch = slideClicks / 84.7 + slideMinInches;
         double wormDeg = (-401 * wormClicks +200)+0;
-        return Math.cos(Math.toRadians(wormDeg))*slideInch;
+        double extention = Math.cos(Math.toRadians(wormDeg))*slideInch;
+        return extention;
 
+    }
+
+    public void armInit(){
+
+        waitForStart();
+        runtime.reset();
+        if (slideLimit.isPressed()){
+        leftSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftSlideDrive.setPower(-0.3);
+        rightSlideDrive.setPower(-0.3);
+
+        leftSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftSlideDrive.setPower(0);
+        rightSlideDrive.setPower(0);
+
+        } else {
+            leftSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
+        leftSlideDrive.setPower(0);
+        rightSlideDrive.setPower(0);
+        leftSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftSlideDrive.setTargetPosition(0);
+        rightSlideDrive.setTargetPosition(0);
+
+    //reset shoulder
+        armDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
 }
