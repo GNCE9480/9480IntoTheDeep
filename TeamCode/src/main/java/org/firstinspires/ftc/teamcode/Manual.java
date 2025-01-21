@@ -87,7 +87,7 @@ public class Manual extends LinearOpMode {
     double turn = 0;
     double arm = 0;
     double wristClicks = 0.4;
-    double slideMinInches = 11.81;
+    int slideMinInches = 12;
     double clawOpenPos = 0.7;
     double clawClosedPos = 0.58;
     double clawClicks = 0.7;
@@ -164,6 +164,7 @@ public class Manual extends LinearOpMode {
             telemetry.addData("worm gear", wormDrive.getCurrentPosition());
             telemetry.addData("worm degrees", wormToDeg(wormDrive.getCurrentPosition()));
             telemetry.addData("extension", extendYAxis(wormDrive.getCurrentPosition(), rightSlideDrive.getCurrentPosition()));
+            telemetry.addData("slide inches", slideToInches(leftSlideDrive.getCurrentPosition()));
 
             telemetry.addData("wrist", wristDrive.getPosition());
             telemetry.addData("claw", clawDrive.getPosition());
@@ -206,11 +207,11 @@ public class Manual extends LinearOpMode {
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
         telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-        if (extendYAxis(wormDrive.getCurrentPosition(), leftSlideDrive.getCurrentPosition()) > 42){
+       /* if (extendYAxis(wormDrive.getCurrentPosition(), leftSlideDrive.getCurrentPosition()) > 42){
             wormDrive.setPower(0);
             leftSlideDrive.setPower(0);
             rightSlideDrive.setPower(0);
-        }
+        } */
 
         if(gamepad1.back){
             leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -225,27 +226,78 @@ public class Manual extends LinearOpMode {
         }
     }
     public void slideControls(){
-        if(gamepad2.left_trigger>0.01) {
+        /*while(gamepad2.left_trigger>0.01) {
+            leftSlideDrive.setTargetPosition(leftSlideDrive.getCurrentPosition()+Math.round(gamepad2.left_trigger));
+            rightSlideDrive.setTargetPosition(rightSlideDrive.getCurrentPosition()+Math.round(gamepad2.left_trigger));
+
+            leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            leftSlideDrive.setPower(0.6);
+            rightSlideDrive.setPower(0.6);
             leftSlideDrive.setPower(gamepad2.left_trigger);
             rightSlideDrive.setPower(gamepad2.left_trigger);
-        }
-        if (gamepad2.right_trigger>0.01) {
 
-            leftSlideDrive.setPower(-gamepad2.right_trigger);
-            rightSlideDrive.setPower(-gamepad2.right_trigger);
+            if (slideLimit.isPressed()) {
+                leftSlideDrive.setPower(0);
+                rightSlideDrive.setPower(0);
+            }
+        }
+        while(gamepad2.right_trigger>0.01) {
+            /*leftSlideDrive.setTargetPosition(leftSlideDrive.getCurrentPosition()+Math.round(gamepad2.right_trigger));
+            rightSlideDrive.setTargetPosition(rightSlideDrive.getCurrentPosition()+Math.round(gamepad2.right_trigger));
+            leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            leftSlideDrive.setPower(-0.6);
+            rightSlideDrive.setPower(-0.6);
+            leftSlideDrive.setPower(gamepad2.right_trigger);
+            rightSlideDrive.setPower(gamepad2.right_trigger);
+            if (slideLimit.isPressed()) {
+                leftSlideDrive.setPower(0);
+                rightSlideDrive.setPower(0);
+            }
+        }
+        if (slideLimit.isPressed()) {
+            leftSlideDrive.setPower(0);
+            rightSlideDrive.setPower(0);
+        }
+        */
+
+
+        if(gamepad2.y){
+            moveSlides(0, 0.5);
+
+            if (slideLimit.isPressed()) {
+                leftSlideDrive.setPower(0);
+                rightSlideDrive.setPower(0);
+            }
+        }
+        if(gamepad2.a){
+            moveSlides(-1000, 0.5);
+            if (slideLimit.isPressed()) {
+                leftSlideDrive.setPower(0);
+                rightSlideDrive.setPower(0);
+            }
+        }
+        if (slideLimit.isPressed()) {
+            leftSlideDrive.setPower(0);
+            rightSlideDrive.setPower(0);
         }
 
         if (gamepad2.back){
             leftSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            wormDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
             leftSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             rightSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            wormDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
 
     }
     public void armControls(){
-        wormDrive.setPower(-0.6 * gamepad2.right_stick_y);
+        wormDrive.setPower(-0.6 * gamepad2.left_stick_y);
 
         //TODO - put presets here
 
@@ -293,6 +345,17 @@ public class Manual extends LinearOpMode {
 
         wristDrive.setPosition(wristPos);
     }
+    public void moveSlides(int Pos, double power){
+
+        leftSlideDrive.setTargetPosition(Pos);
+        rightSlideDrive.setTargetPosition(Pos);
+
+        leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftSlideDrive.setPower(power);
+        rightSlideDrive.setPower(power);
+
+    }
     public void armInit(){
 
         waitForStart();
@@ -324,13 +387,14 @@ public class Manual extends LinearOpMode {
         wormDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
     private int slideToClicks(double inch){
-        return (int) ((inch - slideMinInches) * 84.7);
+        return (int) ((inch - slideMinInches) * -84.7);
     }
     private double slideToInches(double clicks) {
         return clicks / 84.7 + slideMinInches;
     }
-    public int wormToDeg(int wormPosClicks){
-        return (-401 * wormPosClicks +200); // - make sure this works/ that the conversion rate is correct
+    public int wormToDeg(double wormPosClicks){
+        int output = (int)Math.round(0.036*wormPosClicks);
+        return output; // - make sure this works/ that the conversion rate is correct
     }
     private double extendYAxis(double wormClicks, double slideClicks){
         double slideInch = slideClicks / 84.7 + slideMinInches;
