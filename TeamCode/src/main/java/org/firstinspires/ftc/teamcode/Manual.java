@@ -86,11 +86,12 @@ public class Manual extends LinearOpMode {
     double strafe = 0;
     double turn = 0;
     double arm = 0;
-    double wristClicks = 0.4;
+    double wristClicks = 0.32;
     int slideMinInches = 12;
     double clawOpenPos = 0.7;
     double clawClosedPos = 0.58;
     double clawClicks = 0.7;
+    ElapsedTime waitTime;
 
 
 
@@ -198,10 +199,10 @@ public class Manual extends LinearOpMode {
             rightBackPower  /= max;
         }
         // Send calculated power to wheels
-        leftFrontDrive.setPower(leftFrontPower); //reduce speed here if needed
-        rightFrontDrive.setPower(rightFrontPower);
-        leftBackDrive.setPower(leftBackPower);
-        rightBackDrive.setPower(rightBackPower);
+        leftFrontDrive.setPower(leftFrontPower*0.75); //reduce speed here if needed
+        rightFrontDrive.setPower(rightFrontPower*0.75);
+        leftBackDrive.setPower(leftBackPower*0.75);
+        rightBackDrive.setPower(rightBackPower*0.75);
 
         // Show the wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -265,21 +266,35 @@ public class Manual extends LinearOpMode {
         */
 
 
-        if(gamepad2.y){
-            moveSlides(0, 0.5);
+        if(gamepad2.dpad_down){
+            //moveSlides(0, 0.5);
+            while(!slideLimit.isPressed()){
+                leftSlideDrive.setPower(0.5);
+                rightSlideDrive.setPower(0.5);
+            }
+            leftSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+
+        }
+        if(gamepad2.dpad_left){
+            moveArm(wormDrive.getCurrentPosition(),-1000, wristDrive.getPosition(), 0,0.5);
+
+        }
+        if(gamepad2.dpad_up){
+            //moveSlides(-2100, 0.5);
             if (slideLimit.isPressed()) {
                 leftSlideDrive.setPower(0);
                 rightSlideDrive.setPower(0);
             }
+
+
         }
-        if(gamepad2.a){
-            moveSlides(-1000, 0.5);
-            if (slideLimit.isPressed()) {
-                leftSlideDrive.setPower(0);
-                rightSlideDrive.setPower(0);
-            }
+        if (gamepad2.a){
+            moveArm(2700,-2100,0.4, 0.5,0.5);
         }
+
+
         if (slideLimit.isPressed()) {
             leftSlideDrive.setPower(0);
             rightSlideDrive.setPower(0);
@@ -292,12 +307,15 @@ public class Manual extends LinearOpMode {
 
             leftSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             rightSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            wormDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            wormDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
     }
     public void armControls(){
         wormDrive.setPower(-0.6 * gamepad2.left_stick_y);
+        if (wormDrive.getCurrentPosition()>2734){
+            wormDrive.setPower(0);
+        }
 
         //TODO - put presets here
 
@@ -330,22 +348,32 @@ public class Manual extends LinearOpMode {
 
         telemetry.addData("Wrist Clicks", wristDrive.getPosition());
     }
-    public void moveArm(int wormDegrees, int slideInch, int wristPos, int wormPow, int slidePow){
-        wormDrive.setTargetPosition(wormToDeg(wormDegrees));
-        leftSlideDrive.setTargetPosition(slideToClicks(slideInch));
-        rightSlideDrive.setTargetPosition(slideToClicks(slideInch));
+    public void moveArm(int wormPos, int slideClicks, double wristPos, double wormPow, double slidePow){
+        waitTime = new ElapsedTime();
 
+        wormDrive.setTargetPosition(wormPos);
         wormDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        wormDrive.setPower(wormPow);
+
+        leftSlideDrive.setTargetPosition(slideClicks);
+        rightSlideDrive.setTargetPosition(slideClicks);
+
         leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        wormDrive.setPower(wormPow);
         leftSlideDrive.setPower(slidePow);
         rightSlideDrive.setPower(slidePow);
 
         wristDrive.setPosition(wristPos);
+
+        while ((wormDrive.isBusy() || leftSlideDrive.isBusy() && rightSlideDrive.isBusy()) && opModeInInit() && waitTime.seconds() < 4) {
+
+        }
+        wormDrive.setPower(0);
+        wormDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
     public void moveSlides(int Pos, double power){
+        waitTime = new ElapsedTime();
 
         leftSlideDrive.setTargetPosition(Pos);
         rightSlideDrive.setTargetPosition(Pos);
@@ -355,9 +383,19 @@ public class Manual extends LinearOpMode {
         leftSlideDrive.setPower(power);
         rightSlideDrive.setPower(power);
 
+        while ((wormDrive.isBusy() || leftSlideDrive.isBusy() && rightSlideDrive.isBusy()) && opModeInInit() && waitTime.seconds() < 4) {
+
+        }
+        wormDrive.setPower(0);
+        wormDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
     }
     public void armInit(){
 
+        wristDrive.setPosition(0.32);
+        clawDrive.setPosition(clawClosedPos);
+
+        waitTime = new ElapsedTime();
         waitForStart();
         runtime.reset();
         if (!slideLimit.isPressed()){
@@ -385,6 +423,8 @@ public class Manual extends LinearOpMode {
         //reset shoulder
         wormDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         wormDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
     }
     private int slideToClicks(double inch){
         return (int) ((inch - slideMinInches) * -84.7);
