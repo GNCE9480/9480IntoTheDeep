@@ -150,7 +150,7 @@ public class Manual extends LinearOpMode {
 
             // helper function to drive
             moveRobot(drive, strafe, turn);
-            armControls();
+            wormControls();
             wristControls();
             clawControls();
             slideControls();
@@ -265,24 +265,26 @@ public class Manual extends LinearOpMode {
         }
         */
 
-
         if(gamepad2.dpad_down){
             //moveSlides(0, 0.5);
             while(!slideLimit.isPressed()){
                 leftSlideDrive.setPower(0.5);
                 rightSlideDrive.setPower(0.5);
+                leftSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                rightSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                leftSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                rightSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             }
-            leftSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            rightSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
 
         }
+        //TODO - see if pressing this after one of the other presets makes the robot freeze up. If so, idk ask around the lab
+        //my code is a bit messed up theres like a 50% chance this works
         if(gamepad2.dpad_left){
             moveArm(wormDrive.getCurrentPosition(),-1000, wristDrive.getPosition(), 0,0.5);
 
         }
         if(gamepad2.dpad_up){
-            //moveSlides(-2100, 0.5);
+            moveArm(wormDrive.getCurrentPosition(), -2000, wristDrive.getPosition(), 0,0.5);
             if (slideLimit.isPressed()) {
                 leftSlideDrive.setPower(0);
                 rightSlideDrive.setPower(0);
@@ -292,6 +294,12 @@ public class Manual extends LinearOpMode {
         }
         if (gamepad2.a){
             moveArm(2700,-2100,0.4, 0.5,0.5);
+        }
+        //TODO - check the extension of the arm here when horizontal. If the slides extend past the 42(or 40? check game manual) limit,
+        //TODO - change the number for 'slide clicks' to have a smaller magnitude, like 1500.
+        //TODO - or see if this works
+        if (leftSlideDrive.getCurrentPosition()<-2100 && wormDrive.getCurrentPosition() > 830){ //TODO - fiddle with the last number (830) to get teh angle limit right
+            wormDrive.setPower(0);
         }
 
 
@@ -311,24 +319,25 @@ public class Manual extends LinearOpMode {
         }
 
     }
-    public void armControls(){
+    public void wormControls(){
         wormDrive.setPower(-0.6 * gamepad2.left_stick_y);
         if (wormDrive.getCurrentPosition()>2734){
             wormDrive.setPower(0);
+            //a limit for the 40 inch robot limit
         }
-
-        //TODO - put presets here
 
     }
     public void clawControls(){
-            if (gamepad2.right_bumper){
-                clawClicks = clawOpenPos;
-
-            }
-            else if (gamepad2.left_bumper) {
-                clawClicks = clawClosedPos;
-            }
+        if (gamepad2.right_bumper){
+            clawClicks = clawOpenPos;
             clawDrive.setPosition(clawClicks);
+
+        }
+        else if (gamepad2.left_bumper) {
+            clawClicks = clawClosedPos;
+            clawDrive.setPosition(clawClicks);
+        }
+
 
     }
     public void wristControls(){
@@ -344,7 +353,7 @@ public class Manual extends LinearOpMode {
             }
             wristDrive.setPosition(wristClicks);
         }
-        wristDrive.setPosition(wristClicks);
+
 
         telemetry.addData("Wrist Clicks", wristDrive.getPosition());
     }
@@ -371,8 +380,9 @@ public class Manual extends LinearOpMode {
         }
         wormDrive.setPower(0);
         wormDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
     }
-    public void moveSlides(int Pos, double power){
+   /* public void moveSlides(int Pos, double power){
         waitTime = new ElapsedTime();
 
         leftSlideDrive.setTargetPosition(Pos);
@@ -389,7 +399,7 @@ public class Manual extends LinearOpMode {
         wormDrive.setPower(0);
         wormDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-    }
+    }*/
     public void armInit(){
 
         wristDrive.setPosition(0.32);
@@ -419,6 +429,10 @@ public class Manual extends LinearOpMode {
         rightSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftSlideDrive.setTargetPosition(0);
         rightSlideDrive.setTargetPosition(0);
+        while (!slideLimit.isPressed()){
+            leftSlideDrive.setPower(0.5);
+            rightSlideDrive.setPower(0.5);
+        }
 
         //reset shoulder
         wormDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
