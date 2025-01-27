@@ -166,7 +166,7 @@ public class Manual extends LinearOpMode {
             telemetry.addData("worm degrees", wormToDeg(wormDrive.getCurrentPosition()));
             telemetry.addData("extension", extendYAxis(wormDrive.getCurrentPosition(), rightSlideDrive.getCurrentPosition()));
             telemetry.addData("slide inches", slideToInches(leftSlideDrive.getCurrentPosition()));
-
+            telemetry.addData("slide limit", slideLimit.isPressed());
             telemetry.addData("wrist", wristDrive.getPosition());
             telemetry.addData("claw", clawDrive.getPosition());
             telemetry.update();
@@ -208,11 +208,15 @@ public class Manual extends LinearOpMode {
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
         telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
+
+        /*
+        doesn't work
        if (extendYAxis(wormDrive.getCurrentPosition(), leftSlideDrive.getCurrentPosition()) > 42){
             wormDrive.setPower(0);
             leftSlideDrive.setPower(0);
             rightSlideDrive.setPower(0);
         }
+        */
 
         if(gamepad1.back){
             leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -228,7 +232,7 @@ public class Manual extends LinearOpMode {
     }
     //why doesn't manual slides work
     public void slideControls(){
-
+        //manual
         while(gamepad2.left_trigger>0.01) {
             leftSlideDrive.setTargetPosition(leftSlideDrive.getCurrentPosition()+Math.round(gamepad2.left_trigger));
             rightSlideDrive.setTargetPosition(rightSlideDrive.getCurrentPosition()+Math.round(gamepad2.left_trigger));
@@ -257,52 +261,50 @@ public class Manual extends LinearOpMode {
                 rightSlideDrive.setPower(0);
             }
         }
+
         if (slideLimit.isPressed()) {
             leftSlideDrive.setPower(0);
             rightSlideDrive.setPower(0);
+            leftSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            leftSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-
+        //presets
         if(gamepad2.dpad_down){
             moveSlides(0, 0.5);
-            while(!slideLimit.isPressed()){
-                leftSlideDrive.setPower(0.5);
-                rightSlideDrive.setPower(0.5);
-                leftSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                rightSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                leftSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                rightSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            }
-
         }
-        //TODO - see if pressing this after one of the other presets makes the robot freeze up. If so, idk ask around the lab
-        //my code is a bit messed up theres like a 50% chance this works
-        //good
+
         if(gamepad2.dpad_left){
-            moveArm(wormDrive.getCurrentPosition(),-1000, wristDrive.getPosition(), 0,0.5);
-
+            moveSlides(-1000, 0.5);
         }
+
+        //this doesn't work now?? wtf
         if(gamepad2.dpad_up){
+            //moveSlides(-2000, 0.5);
             moveArm(wormDrive.getCurrentPosition(), -2000, wristDrive.getPosition(), 0,0.5);
-            if (slideLimit.isPressed()) {
-                leftSlideDrive.setPower(0);
-                rightSlideDrive.setPower(0);
-            }
+            //if (slideLimit.isPressed()) {
+                //leftSlideDrive.setPower(0);
+                //rightSlideDrive.setPower(0);
+            //}
         }
 
+        /*
+        picking up sample from submersible
+        if (gamepad2.a){
+            moveArm()
+        }
+         */
 
-        //preset for getting things w/ clip
+        //getting specimen
         if (gamepad2.b){
             moveArm(0,0,0.44, 0.5,0.5);
             clawClicks = clawOpenPos;
             clawDrive.setPosition(clawClicks);
         }
 
-
-        //TODO - check the extension of the arm here when horizontal. If the slides extend past the 42(or 40? check game manual) limit,
-        //TODO - change the number for 'slide clicks' to have a smaller magnitude, like 1500.
-        //TODO - or see if this works
-        //works :)
-        if (leftSlideDrive.getCurrentPosition()<-1550 && wormDrive.getCurrentPosition() < 830){ //TODO - fiddle with the last number (830) to get teh angle limit right
+        //horizontal limit
+        if (leftSlideDrive.getCurrentPosition()<-1550 && wormDrive.getCurrentPosition() < 830){
             leftSlideDrive.setPower(0);
             rightSlideDrive.setPower(0);
         }
@@ -321,37 +323,29 @@ public class Manual extends LinearOpMode {
             leftSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             rightSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             wormDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-
         }
-
     }
     public void wormControls(){
         wormDrive.setPower(-0.6 * gamepad2.left_stick_y);
+        //limit
         if (wormDrive.getCurrentPosition()>2300) {
             wormDrive.setPower(0);
-            //a limit for the 40 inch robot limit
         }
-
     }
     public void clawControls(){
         if (gamepad2.right_bumper){
             clawClicks = clawOpenPos;
             clawDrive.setPosition(clawClicks);
-
         }
         else if (gamepad2.left_bumper) {
             clawClicks = clawClosedPos;
             clawDrive.setPosition(clawClicks);
         }
-
-
     }
+
     public void wristControls(){
         if (Math.abs(gamepad2.right_stick_y) > 0.03){
             wristClicks = wristDrive.getPosition()+gamepad2.right_stick_y*0.01;//0.05 is just the turn rate
-
-
             if (wristClicks >= 0.5){ //0.05 is placeholder for wrist limit
                 wristClicks = 0.5;
             }
@@ -457,11 +451,12 @@ public class Manual extends LinearOpMode {
         int output = (int)Math.round(0.036*wormPosClicks);
         return output; // - make sure this works/ that the conversion rate is correct
     }
+
+    //doesn't work
     private double extendYAxis(double wormClicks, double slideClicks){
         double slideInch = slideClicks / 84.7 + slideMinInches;
         double wormDeg = (-401 * wormClicks +200)+0;
         return Math.cos(Math.toRadians(wormDeg))*slideInch;
-
     }
 
 
