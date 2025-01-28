@@ -230,37 +230,26 @@ public class Manual extends LinearOpMode {
             rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
     }
-    //why doesn't manual slides work
     public void slideControls(){
         //manual
         while(gamepad2.left_trigger>0.01) {
-            leftSlideDrive.setTargetPosition(leftSlideDrive.getCurrentPosition()+Math.round(gamepad2.left_trigger));
-            rightSlideDrive.setTargetPosition(rightSlideDrive.getCurrentPosition()+Math.round(gamepad2.left_trigger));
+            leftSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            leftSlideDrive.setPower(0.6);
-            rightSlideDrive.setPower(0.6);
-
-            if (slideLimit.isPressed()) {
-                leftSlideDrive.setPower(0);
-                rightSlideDrive.setPower(0);
-            }
+            leftSlideDrive.setPower(-0.6 * gamepad2.left_trigger + 0.2);
+            rightSlideDrive.setPower(-0.6 * gamepad2.left_trigger + 0.2);
         }
+
         while(gamepad2.right_trigger>0.01) {
-            leftSlideDrive.setTargetPosition(leftSlideDrive.getCurrentPosition()+Math.round(gamepad2.right_trigger));
-            rightSlideDrive.setTargetPosition(rightSlideDrive.getCurrentPosition()+Math.round(gamepad2.right_trigger));
-            leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            leftSlideDrive.setPower(-0.6);
-            rightSlideDrive.setPower(-0.6);
-            if (slideLimit.isPressed()) {
-                leftSlideDrive.setPower(0);
-                rightSlideDrive.setPower(0);
-            }
+            leftSlideDrive.setPower(0.6 * gamepad2.right_trigger);
+            rightSlideDrive.setPower(0.6 * gamepad2.right_trigger);
         }
+
+        leftSlideDrive.setTargetPosition(leftSlideDrive.getCurrentPosition());
+        rightSlideDrive.setTargetPosition(rightSlideDrive.getCurrentPosition());
 
         if (slideLimit.isPressed()) {
             leftSlideDrive.setPower(0);
@@ -279,7 +268,6 @@ public class Manual extends LinearOpMode {
             moveSlides(-1000, 0.5);
         }
 
-        //this doesn't work now?? wtf
         if(gamepad2.dpad_up){
             //moveSlides(-2000, 0.5);
             moveArm(wormDrive.getCurrentPosition(), -2000, wristDrive.getPosition(), 0,0.5);
@@ -303,17 +291,23 @@ public class Manual extends LinearOpMode {
             clawDrive.setPosition(clawClicks);
         }
 
+        leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
         //horizontal limit
         if (leftSlideDrive.getCurrentPosition()<-1550 && wormDrive.getCurrentPosition() < 830){
             leftSlideDrive.setPower(0);
             rightSlideDrive.setPower(0);
         }
 
-
+/*
+redundant or do we need?
         if (slideLimit.isPressed()) {
             leftSlideDrive.setPower(0);
             rightSlideDrive.setPower(0);
         }
+
+ */
 
         if (gamepad2.back){
             leftSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -388,11 +382,12 @@ public class Manual extends LinearOpMode {
 
         leftSlideDrive.setTargetPosition(Pos);
         rightSlideDrive.setTargetPosition(Pos);
-
+        /*
         leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftSlideDrive.setPower(power);
         rightSlideDrive.setPower(power);
+         */
 
         while ((wormDrive.isBusy() || leftSlideDrive.isBusy() && rightSlideDrive.isBusy()) && opModeInInit() && waitTime.seconds() < 4) {
 
