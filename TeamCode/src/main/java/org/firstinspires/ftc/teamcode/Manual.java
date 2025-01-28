@@ -288,23 +288,23 @@ public class Manual extends LinearOpMode {
                 rightSlideDrive.setPower(0);
             }
         }
-        //what is this for???
-        if (gamepad2.a){
-            moveArm(2700,-2100,0.4, 0.5,0.5);
+
+
+        //preset for getting things w/ clip
+        if (gamepad2.b){
+            moveArm(0,0,0.44, 0.5,0.5);
+            clawClicks = clawOpenPos;
+            clawDrive.setPosition(clawClicks);
         }
 
-        /*
-        preset for getting things w/ clip
-        if (gamepad2.b){
-        }
-         */
 
         //TODO - check the extension of the arm here when horizontal. If the slides extend past the 42(or 40? check game manual) limit,
         //TODO - change the number for 'slide clicks' to have a smaller magnitude, like 1500.
         //TODO - or see if this works
         //works :)
-        if (leftSlideDrive.getCurrentPosition()<-2100 && wormDrive.getCurrentPosition() > 830){ //TODO - fiddle with the last number (830) to get teh angle limit right
-            wormDrive.setPower(0);
+        if (leftSlideDrive.getCurrentPosition()<-1550 && wormDrive.getCurrentPosition() < 830){ //TODO - fiddle with the last number (830) to get teh angle limit right
+            leftSlideDrive.setPower(0);
+            rightSlideDrive.setPower(0);
         }
 
 
@@ -328,7 +328,7 @@ public class Manual extends LinearOpMode {
     }
     public void wormControls(){
         wormDrive.setPower(-0.6 * gamepad2.left_stick_y);
-        if (wormDrive.getCurrentPosition()>2734){
+        if (wormDrive.getCurrentPosition()>2300) {
             wormDrive.setPower(0);
             //a limit for the 40 inch robot limit
         }
