@@ -143,10 +143,8 @@ public class Manual extends LinearOpMode {
 
         armInit();
 
-
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-
 
             // helper function to drive
             moveRobot(drive, strafe, turn);
@@ -154,7 +152,6 @@ public class Manual extends LinearOpMode {
             wristControls();
             clawControls();
             slideControls();
-
 
             telemetry.addData("left front", leftFrontDrive.getCurrentPosition());
             telemetry.addData("right front", rightFrontDrive.getCurrentPosition());
@@ -166,11 +163,10 @@ public class Manual extends LinearOpMode {
             telemetry.addData("worm degrees", wormToDeg(wormDrive.getCurrentPosition()));
             telemetry.addData("extension", extendYAxis(wormDrive.getCurrentPosition(), rightSlideDrive.getCurrentPosition()));
             telemetry.addData("slide inches", slideToInches(leftSlideDrive.getCurrentPosition()));
-            telemetry.addData("slide limit", slideLimit.isPressed());
+            telemetry.addData("slide is busy", leftSlideDrive.isBusy());
             telemetry.addData("wrist", wristDrive.getPosition());
             telemetry.addData("claw", clawDrive.getPosition());
             telemetry.update();
-
         }
 
     }
@@ -248,9 +244,6 @@ public class Manual extends LinearOpMode {
             rightSlideDrive.setPower(0.6 * gamepad2.right_trigger);
         }
 
-        leftSlideDrive.setTargetPosition(leftSlideDrive.getCurrentPosition());
-        rightSlideDrive.setTargetPosition(rightSlideDrive.getCurrentPosition());
-
         if (slideLimit.isPressed()) {
             leftSlideDrive.setPower(0);
             rightSlideDrive.setPower(0);
@@ -263,19 +256,15 @@ public class Manual extends LinearOpMode {
         if(gamepad2.dpad_down){
             moveSlides(0, 0.5);
         }
-
         if(gamepad2.dpad_left){
             moveSlides(-1000, 0.5);
         }
-
         if(gamepad2.dpad_up){
-            //moveSlides(-2000, 0.5);
-            moveArm(wormDrive.getCurrentPosition(), -2000, wristDrive.getPosition(), 0,0.5);
-            //if (slideLimit.isPressed()) {
-                //leftSlideDrive.setPower(0);
-                //rightSlideDrive.setPower(0);
-            //}
+            moveSlides(-2000, 0.5);
         }
+
+        leftSlideDrive.setTargetPosition(leftSlideDrive.getCurrentPosition());
+        rightSlideDrive.setTargetPosition(rightSlideDrive.getCurrentPosition());
 
         /*
         picking up sample from submersible
@@ -286,9 +275,10 @@ public class Manual extends LinearOpMode {
 
         //getting specimen
         if (gamepad2.b){
-            moveArm(0,0,0.44, 0.5,0.5);
-            clawClicks = clawOpenPos;
-            clawDrive.setPosition(clawClicks);
+            moveArm(0, 0.5);
+            moveWrist(0.44);
+            moveSlides(0, 0.5);
+            openClaw();
         }
 
         leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -328,13 +318,20 @@ redundant or do we need?
     }
     public void clawControls(){
         if (gamepad2.right_bumper){
-            clawClicks = clawOpenPos;
-            clawDrive.setPosition(clawClicks);
+            openClaw();
         }
         else if (gamepad2.left_bumper) {
-            clawClicks = clawClosedPos;
-            clawDrive.setPosition(clawClicks);
+            closeClaw();
         }
+    }
+
+    public void openClaw(){
+        clawClicks = clawOpenPos;
+        clawDrive.setPosition(clawClicks);
+    }
+    public void closeClaw(){
+        clawClicks = clawClosedPos;
+        clawDrive.setPosition(clawClicks);
     }
 
     public void wristControls(){
@@ -348,29 +345,16 @@ redundant or do we need?
             }
             wristDrive.setPosition(wristClicks);
         }
-
-
         telemetry.addData("Wrist Clicks", wristDrive.getPosition());
     }
-    public void moveArm(int wormPos, int slideClicks, double wristPos, double wormPow, double slidePow){
+    public void moveArm(int wormPos, double wormPow){
         waitTime = new ElapsedTime();
 
         wormDrive.setTargetPosition(wormPos);
         wormDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         wormDrive.setPower(wormPow);
 
-        leftSlideDrive.setTargetPosition(slideClicks);
-        rightSlideDrive.setTargetPosition(slideClicks);
-
-        leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        leftSlideDrive.setPower(slidePow);
-        rightSlideDrive.setPower(slidePow);
-
-        wristDrive.setPosition(wristPos);
-
-        while ((wormDrive.isBusy() || leftSlideDrive.isBusy() && rightSlideDrive.isBusy()) && opModeInInit() && waitTime.seconds() < 4) {
+        while (wormDrive.isBusy() && opModeInInit() && waitTime.seconds() < 4) {
 
         }
         wormDrive.setPower(0);
@@ -380,24 +364,28 @@ redundant or do we need?
     public void moveSlides(int Pos, double power) {
         waitTime = new ElapsedTime();
 
-        leftSlideDrive.setTargetPosition(Pos);
-        rightSlideDrive.setTargetPosition(Pos);
+        leftSlideDrive.setPower(power);
+        rightSlideDrive.setPower(power);
+        //leftSlideDrive.setTargetPosition(Pos);
+        //rightSlideDrive.setTargetPosition(Pos);
+
         /*
         leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftSlideDrive.setPower(power);
-        rightSlideDrive.setPower(power);
-         */
+        */
 
-        while ((wormDrive.isBusy() || leftSlideDrive.isBusy() && rightSlideDrive.isBusy()) && opModeInInit() && waitTime.seconds() < 4) {
-
+        while ((leftSlideDrive.isBusy() && rightSlideDrive.isBusy()) && opModeInInit() && waitTime.seconds() < 4) {
         }
-        wormDrive.setPower(0);
-        wormDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        while (leftSlideDrive.getCurrentPosition() != Pos && rightSlideDrive.getCurrentPosition() != Pos && opModeIsActive()){
+            leftSlideDrive.setTargetPosition(Pos);
+            rightSlideDrive.setTargetPosition(Pos);
+        }
+    }
 
+    public void moveWrist(double Pos){
+        wristDrive.setPosition(Pos);
     }
     public void armInit(){
-
         wristDrive.setPosition(0.32);
         clawDrive.setPosition(clawClosedPos);
 
