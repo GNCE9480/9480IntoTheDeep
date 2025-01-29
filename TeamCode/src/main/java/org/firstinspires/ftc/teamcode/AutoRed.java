@@ -11,53 +11,101 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 
 
-@Autonomous(name="AutoRedClose", preselectTeleOp = "9480 Manual")
+@Autonomous(name="AutoRedClose")
 public class AutoRed extends LinearOpMode {
     Manual man = new Manual();
 
     private ElapsedTime runtime = new ElapsedTime();
+    public  DcMotor leftFrontDrive = null;
+    public DcMotor leftBackDrive = null;
+    public DcMotor rightFrontDrive = null;
+    public DcMotor rightBackDrive = null;
+    public DcMotor wormDrive = null;
+    public DcMotor rightSlideDrive = null;
+    public DcMotor leftSlideDrive = null;
+    public Servo wristDrive = null;
+    public Servo clawDrive = null;
+    public TouchSensor slideLimit = null;
+    ElapsedTime waitTime;
+
 
 
 
     @Override public void runOpMode()
     {
-        man.armInit();
+        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
+        leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
+        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+
+        clawDrive = hardwareMap.get(Servo.class, "center_claw");
+        wristDrive = hardwareMap.get(Servo.class, "center_wrist");
+        leftSlideDrive = hardwareMap.get(DcMotor.class, "left_slide");
+        rightSlideDrive = hardwareMap.get(DcMotor.class, "right_slide");
+        wormDrive = hardwareMap.get(DcMotor.class, "center_arm");
+        slideLimit = hardwareMap.get(TouchSensor.class, "armLimitLeft");
+
+
+        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        //man.armInit();
+        waitForStart();
 
 
 
-        man.moveArm(100, 0.5);
+        moveArm(100, 0.5);
 
-        driveToClicks(100,100,100,100, 0.5);
+        driveToClicks(200,200,200,200, 0.5);
+
+
 
 
 
     }
 
     private void stopAndResetMotors(){
-        man.leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        man.leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        man.rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        man.rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     private void driveToClicks(int clicksleftFrontDrive, int clicksleftBackDrive, int clicksrightFrontDrive, int clicksrightBackDrive, double power){
         stopAndResetMotors();
-        man.leftFrontDrive.setTargetPosition(clicksleftFrontDrive);
-        man.leftBackDrive.setTargetPosition(clicksleftBackDrive);
-        man.rightFrontDrive.setTargetPosition(clicksrightFrontDrive);
-        man.rightBackDrive.setTargetPosition(clicksrightBackDrive);
+        leftFrontDrive.setTargetPosition(clicksleftFrontDrive);
+        leftBackDrive.setTargetPosition(clicksleftBackDrive);
+        rightFrontDrive.setTargetPosition(clicksrightFrontDrive);
+        rightBackDrive.setTargetPosition(clicksrightBackDrive);
 
-        man.leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        man.leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        man.rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        man.rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        man.leftFrontDrive.setPower(power);
-        man.leftBackDrive.setPower(power);
-        man.rightFrontDrive.setPower(power);
-        man.rightBackDrive.setPower(power);
-        while ((man.leftBackDrive.isBusy() || man.rightFrontDrive.isBusy())) {
+        leftFrontDrive.setPower(power);
+        leftBackDrive.setPower(power);
+        rightFrontDrive.setPower(power);
+        rightBackDrive.setPower(power);
+        while( leftBackDrive.isBusy()&& leftFrontDrive.isBusy()&&rightBackDrive.isBusy()&&rightFrontDrive.isBusy()){
 
         }
+
     }
+    public void moveArm(int wormPos, double wormPow){
+        waitTime = new ElapsedTime();
+
+        wormDrive.setTargetPosition(wormPos);
+        wormDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        wormDrive.setPower(wormPow);
+
+        while (wormDrive.isBusy() && opModeInInit() && waitTime.seconds() < 4) {
+
+        }
+        wormDrive.setPower(0);
+        wormDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+    }
+
 
 }
