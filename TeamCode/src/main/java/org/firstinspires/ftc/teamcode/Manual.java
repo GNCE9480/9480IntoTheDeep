@@ -72,16 +72,16 @@ public class Manual extends LinearOpMode {
     //ArmControl armCenter = new ArmControl(); //object used to call methods from within our arms class.
     // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();
-    private DcMotor leftFrontDrive = null;
-    private DcMotor leftBackDrive = null;
-    private DcMotor rightFrontDrive = null;
-    private DcMotor rightBackDrive = null;
-    private DcMotor wormDrive = null;
-    private DcMotor rightSlideDrive = null;
-    private DcMotor leftSlideDrive = null;
-    private Servo wristDrive = null;
-    private Servo clawDrive = null;
-    private TouchSensor slideLimit = null;
+    public  DcMotor leftFrontDrive = null;
+    public DcMotor leftBackDrive = null;
+    public DcMotor rightFrontDrive = null;
+    public DcMotor rightBackDrive = null;
+    public DcMotor wormDrive = null;
+    public DcMotor rightSlideDrive = null;
+    public DcMotor leftSlideDrive = null;
+    public Servo wristDrive = null;
+    public Servo clawDrive = null;
+    public TouchSensor slideLimit = null;
     double drive = 0;
     double strafe = 0;
     double turn = 0;
@@ -234,6 +234,15 @@ public class Manual extends LinearOpMode {
 
             leftSlideDrive.setPower(-0.6 * gamepad2.left_trigger + 0.2);
             rightSlideDrive.setPower(-0.6 * gamepad2.left_trigger + 0.2);
+            if (slideLimit.isPressed()){
+                leftSlideDrive.setPower(0);
+                rightSlideDrive.setPower(0);
+                leftSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                rightSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                leftSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                rightSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            }
         }
 
         while(gamepad2.right_trigger>0.01) {
@@ -242,6 +251,15 @@ public class Manual extends LinearOpMode {
 
             leftSlideDrive.setPower(0.6 * gamepad2.right_trigger);
             rightSlideDrive.setPower(0.6 * gamepad2.right_trigger);
+            if (slideLimit.isPressed()){
+                leftSlideDrive.setPower(0);
+                rightSlideDrive.setPower(0);
+                leftSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                rightSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                leftSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                rightSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            }
         }
 
         if (slideLimit.isPressed()) {
