@@ -11,7 +11,7 @@ public class Slides {
     public DcMotorEx leftSlideDrive;
     public DcMotorEx rightSlideDrive;
     public TouchSensor slideLimit;
-    public DcMotorEx wormDrive;
+    //public DcMotorEx wormDrive;
 
     OpMode lopMode;
 
@@ -20,7 +20,7 @@ public class Slides {
     public Slides(HardwareMap hardwareMap, OpMode opMode){
         leftSlideDrive = hardwareMap.get(DcMotorEx.class, "left_slide");
         rightSlideDrive = hardwareMap.get(DcMotorEx.class, "right_slide");
-        wormDrive = hardwareMap.get(DcMotorEx.class, "center_arm");
+        //wormDrive = hardwareMap.get(DcMotorEx.class, "center_arm");
         slideLimit = hardwareMap.get(TouchSensor.class, "armLimitLeft");
 
         leftSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -38,7 +38,7 @@ public class Slides {
 
         leftSlideDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         rightSlideDrive.setDirection(DcMotorSimple.Direction.FORWARD);
-        wormDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        //wormDrive.setDirection(DcMotorSimple.Direction.FORWARD);
         this.lopMode = opMode;
     }
 
@@ -50,7 +50,7 @@ public class Slides {
         }
 
         if(Math.abs(lopMode.gamepad2.left_trigger) > 0.1 || Math.abs(lopMode.gamepad2.right_trigger) > 0.1){
-            final double sensitivity = 0.5;
+            final double sensitivity = 0.8;
             leftSlideDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rightSlideDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -64,8 +64,8 @@ public class Slides {
             rightSlideDrive.setTargetPosition(target);
             leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            leftSlideDrive.setPower(0.7);
-            rightSlideDrive.setPower(0.7);
+            leftSlideDrive.setPower(1);
+            rightSlideDrive.setPower(1);
         }
     }
 
@@ -73,8 +73,8 @@ public class Slides {
         DOWN,
         MIDDLE,
         UP,
+        CHAMBER,
     }
-
 
     public void setSlidePosition(SlidePositions targetSlidePosition){
         switch(targetSlidePosition){
@@ -87,6 +87,8 @@ public class Slides {
             case DOWN:
                 target = 0;
                 break;
+            case CHAMBER:
+                target = 1;
             default:
                 break;
         }

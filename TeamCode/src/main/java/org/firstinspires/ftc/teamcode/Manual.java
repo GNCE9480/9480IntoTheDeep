@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.transition.Slide;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -80,7 +82,7 @@ public class Manual extends OpMode {
     double drive = 0;
     double strafe = 0;
     double turn = 0;
-    double arm = 0;
+    //double arm = 0;
     double wristClicks = 0.32;
     int slideMinInches = 12;
     double clawOpenPos = 0.7;
@@ -90,6 +92,7 @@ public class Manual extends OpMode {
 
     Slides slides;
     Claw claw;
+    Arm arm;
 
 
     @Override
@@ -105,6 +108,7 @@ public class Manual extends OpMode {
 
         claw = new Claw(hardwareMap, this);
         slides = new Slides(hardwareMap, this);
+        arm = new Arm(hardwareMap, this);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -124,6 +128,9 @@ public class Manual extends OpMode {
 
         slides.HoldLift();
         claw.clawControls();
+        claw.wristControls();
+        arm.HoldArm();
+
 
 //        wormControls();
 //        wristControls();
@@ -133,7 +140,20 @@ public class Manual extends OpMode {
         if(gamepad2.dpad_down) slides.setSlidePosition(Slides.SlidePositions.DOWN);
         else if(gamepad2.dpad_left) slides.setSlidePosition(Slides.SlidePositions.MIDDLE);
         else if(gamepad2.dpad_up) slides.setSlidePosition(Slides.SlidePositions.UP);
-
+        else if(gamepad2.a) {
+            slides.setSlidePosition(Slides.SlidePositions.DOWN);
+            arm.setArmPosition(Arm.ArmPositions.SAMPLE);
+        }
+        else if(gamepad2.b) {
+            slides.setSlidePosition(Slides.SlidePositions.DOWN);
+            arm.setArmPosition(Arm.ArmPositions.SPECIMEN);
+            claw.setWristPosition(0.43);
+            claw.openClaw();
+        }
+        else if(gamepad2.y){
+            slides.setSlidePosition(Slides.SlidePositions.CHAMBER);
+            arm.setArmPosition(Arm.ArmPositions.CHAMBER);
+        }
 
         telemetry.addLine()
                         .addData("leftTrigger", gamepad2.left_trigger)
@@ -145,9 +165,9 @@ public class Manual extends OpMode {
         telemetry.addData("current slide target", slides.getTarget());
         telemetry.addData("left slide", slides.leftSlideDrive.getCurrentPosition());
         telemetry.addData("right slide", slides.rightSlideDrive.getCurrentPosition());
-        telemetry.addData("worm gear", slides.wormDrive.getCurrentPosition());
-        telemetry.addData("worm degrees", wormToDeg(slides.wormDrive.getCurrentPosition()));
-        telemetry.addData("extension", extendYAxis(slides.wormDrive.getCurrentPosition(), slides.rightSlideDrive.getCurrentPosition()));
+        telemetry.addData("worm gear", arm.wormDrive.getCurrentPosition());
+        //telemetry.addData("worm degrees", wormToDeg(slides.wormDrive.getCurrentPosition()));
+        //telemetry.addData("extension", extendYAxis(slides.wormDrive.getCurrentPosition(), slides.rightSlideDrive.getCurrentPosition()));
         telemetry.addData("slide inches", slideToInches(slides.leftSlideDrive.getCurrentPosition()));
         telemetry.addData("wrist", claw.wristDrive.getPosition());
         telemetry.addData("claw", claw.clawDrive.getPosition());
@@ -384,6 +404,10 @@ public class Manual extends OpMode {
     public int wormToDeg(double wormPosClicks){
         int output = (int)Math.round(0.036*wormPosClicks);
         return output; // - make sure this works/ that the conversion rate is correct
+    }
+
+    public int degToWorm(double deg){
+        return (int)(Math.round(deg/0.036));
     }
 
     //doesn't work
