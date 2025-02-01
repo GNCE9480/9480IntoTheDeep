@@ -12,11 +12,6 @@ public class Bot {
     public DcMotorEx rightBackDrive;
     OpMode lopMode;
 
-    double leftFrontPower;
-    double rightFrontPower;
-    double leftBackPower;
-    double rightBackPower;
-
     public Bot(HardwareMap hardwareMap, OpMode opMode){
         leftFrontDrive  = hardwareMap.get(DcMotorEx.class, "left_front_drive");
         leftBackDrive  = hardwareMap.get(DcMotorEx.class, "left_back_drive");
@@ -36,10 +31,10 @@ public class Bot {
 
         // Combine the joystick requests for each axis-motion to determine each wheel's power.
         // Set up a variable for each drive wheel to save the power level for telemetry.
-        leftFrontPower  = axial + lateral + yaw;
-        rightFrontPower = axial - lateral - yaw;
-        leftBackPower   = axial - lateral + yaw;
-        rightBackPower  = axial + lateral - yaw;
+        double leftFrontPower = axial + lateral + yaw;
+        double rightFrontPower = axial - lateral - yaw;
+        double leftBackPower = axial - lateral + yaw;
+        double rightBackPower = axial + lateral - yaw;
 
         // Normalize the values so no wheel power exceeds 100%
         // This ensures that the robot maintains the desired motion.
@@ -48,17 +43,17 @@ public class Bot {
         max = Math.max(max, Math.abs(rightBackPower));
 
         if (max > 1.0) {
-            leftFrontPower  /= max;
+            leftFrontPower /= max;
             rightFrontPower /= max;
-            leftBackPower   /= max;
-            rightBackPower  /= max;
+            leftBackPower /= max;
+            rightBackPower /= max;
         }
         // Send calculated power to wheels
         final double speed = 0.75;
-        leftFrontDrive.setPower(leftFrontPower*speed); //reduce speed here if needed
-        rightFrontDrive.setPower(rightFrontPower*speed);
-        leftBackDrive.setPower(leftBackPower*speed);
-        rightBackDrive.setPower(rightBackPower*speed);
+        leftFrontDrive.setPower(leftFrontPower *speed); //reduce speed here if needed
+        rightFrontDrive.setPower(rightFrontPower *speed);
+        leftBackDrive.setPower(leftBackPower *speed);
+        rightBackDrive.setPower(rightBackPower *speed);
     }
 
     public void reset() {

@@ -62,11 +62,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
 
-@TeleOp(name="9480 Manual", group="Linear OpMode") //change name "" to show different name in the app interface
+@TeleOp(name="9480 Manual", group="Linear OpMode")
 
 public class Manual extends OpMode {
-    //ArmControl armCenter = new ArmControl(); //object used to call methods from within our arms class.
-    // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();
     //public  DcMotor leftFrontDrive = null;
     //public DcMotor leftBackDrive = null;
@@ -76,7 +74,7 @@ public class Manual extends OpMode {
     double strafe = 0;
     double turn = 0;
     int slideMinInches = 12;
-    //ElapsedTime waitTime;
+    ElapsedTime waitTime;
 
     Slides slides;
     Claw claw;
@@ -151,13 +149,13 @@ public class Manual extends OpMode {
 
         telemetry.addData("current slide target", slides.getTarget());
         telemetry.addData("arm target", arm.getTarget());
-        telemetry.addData("Front left/Right", "%4.2f, %4.2f", bot.leftFrontPower, bot.rightFrontPower);
-        telemetry.addData("Back  left/Right", "%4.2f, %4.2f", bot.leftBackPower, bot.rightBackPower);
-        //numbers
+        //telemetry.addData("Front left/Right", "%4.2f, %4.2f", bot.leftFrontPower, bot.rightFrontPower);
+        //telemetry.addData("Back  left/Right", "%4.2f, %4.2f", bot.leftBackPower, bot.rightBackPower);
+
         telemetry.addData("worm degrees", wormToDeg(arm.wormDrive.getCurrentPosition()));
         telemetry.addData("extension", extendYAxis(arm.wormDrive.getCurrentPosition(), slides.rightSlideDrive.getCurrentPosition()));
         telemetry.addData("slide inches", slideToInches(slides.leftSlideDrive.getCurrentPosition()));
-        //positions
+
         telemetry.addData("left slide", slides.leftSlideDrive.getCurrentPosition());
         telemetry.addData("right slide", slides.rightSlideDrive.getCurrentPosition());
         telemetry.addData("worm gear", arm.wormDrive.getCurrentPosition());
