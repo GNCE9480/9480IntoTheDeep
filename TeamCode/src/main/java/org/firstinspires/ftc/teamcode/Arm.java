@@ -72,4 +72,8 @@ public class Arm {
                 break;
         }
     }
+
+    public int getTarget(){
+        return target;
+    }
 }

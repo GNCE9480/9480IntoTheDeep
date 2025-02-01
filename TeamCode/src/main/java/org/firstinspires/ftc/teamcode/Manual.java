@@ -68,23 +68,25 @@ public class Manual extends OpMode {
     //ArmControl armCenter = new ArmControl(); //object used to call methods from within our arms class.
     // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();
-    public  DcMotor leftFrontDrive = null;
-    public DcMotor leftBackDrive = null;
-    public DcMotor rightFrontDrive = null;
-    public DcMotor rightBackDrive = null;
+    //public  DcMotor leftFrontDrive = null;
+    //public DcMotor leftBackDrive = null;
+    //public DcMotor rightFrontDrive = null;
+    //public DcMotor rightBackDrive = null;
     double drive = 0;
     double strafe = 0;
     double turn = 0;
     int slideMinInches = 12;
-    ElapsedTime waitTime;
+    //ElapsedTime waitTime;
 
     Slides slides;
     Claw claw;
     Arm arm;
+    Bot bot;
 
 
     @Override
     public void init(){
+        /*
         leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
         leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
@@ -93,10 +95,12 @@ public class Manual extends OpMode {
         leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+         */
 
         claw = new Claw(hardwareMap, this);
         slides = new Slides(hardwareMap, this);
         arm = new Arm(hardwareMap, this);
+        bot = new Bot(hardwareMap, this);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -104,12 +108,13 @@ public class Manual extends OpMode {
 
     @Override
     public void loop() {
-        moveRobot();
+        bot.moveRobot();
         slides.HoldLift();
         claw.clawControls();
         claw.wristControls();
         arm.HoldArm();
 
+        if (gamepad2.back) bot.reset();
         if (gamepad2.right_bumper) {
             claw.toggleClaw();
         }
@@ -139,21 +144,29 @@ public class Manual extends OpMode {
         telemetry.addLine()
                         .addData("leftTrigger", gamepad2.left_trigger)
                         .addData("rightTrigger", gamepad2.right_trigger);
-        telemetry.addData("left front", leftFrontDrive.getCurrentPosition());
-        telemetry.addData("right front", rightFrontDrive.getCurrentPosition());
-        telemetry.addData("right back", rightBackDrive.getCurrentPosition());
-        telemetry.addData("left back", leftBackDrive.getCurrentPosition());
+        telemetry.addData("left front", bot.leftFrontDrive.getCurrentPosition());
+        telemetry.addData("right front", bot.rightFrontDrive.getCurrentPosition());
+        telemetry.addData("right back", bot.rightBackDrive.getCurrentPosition());
+        telemetry.addData("left back", bot.leftBackDrive.getCurrentPosition());
+
         telemetry.addData("current slide target", slides.getTarget());
-        telemetry.addData("left slide", slides.leftSlideDrive.getCurrentPosition());
-        telemetry.addData("right slide", slides.rightSlideDrive.getCurrentPosition());
-        telemetry.addData("worm gear", arm.wormDrive.getCurrentPosition());
+        telemetry.addData("arm target", arm.getTarget());
+        telemetry.addData("Front left/Right", "%4.2f, %4.2f", bot.leftFrontPower, bot.rightFrontPower);
+        telemetry.addData("Back  left/Right", "%4.2f, %4.2f", bot.leftBackPower, bot.rightBackPower);
+        //numbers
         telemetry.addData("worm degrees", wormToDeg(arm.wormDrive.getCurrentPosition()));
         telemetry.addData("extension", extendYAxis(arm.wormDrive.getCurrentPosition(), slides.rightSlideDrive.getCurrentPosition()));
         telemetry.addData("slide inches", slideToInches(slides.leftSlideDrive.getCurrentPosition()));
+        //positions
+        telemetry.addData("left slide", slides.leftSlideDrive.getCurrentPosition());
+        telemetry.addData("right slide", slides.rightSlideDrive.getCurrentPosition());
+        telemetry.addData("worm gear", arm.wormDrive.getCurrentPosition());
         telemetry.addData("wrist", claw.wristDrive.getPosition());
         telemetry.addData("claw", claw.clawDrive.getPosition());
+        telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.update();
     }
+    /*
     public void moveRobot(){
         double axial    =  gamepad1.left_stick_y;
         double lateral  =  gamepad1.left_stick_x;
@@ -201,6 +214,7 @@ public class Manual extends OpMode {
             rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
     }
+     */
 
     //----------------------------conversions--------------------------
     private int slideToClicks(double inch){
@@ -215,7 +229,6 @@ public class Manual extends OpMode {
     public int degToWorm(double deg){
         return (int)(Math.round(deg/0.036));
     }
-    //doesn't work
     private double extendYAxis(double wormClicks, double slideClicks){
         double slideInch = slideClicks / 84.7 + slideMinInches;
         double wormDeg = (-401 * wormClicks +200)+0;
