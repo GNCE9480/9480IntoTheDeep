@@ -10,8 +10,9 @@ public class Claw {
 
     OpMode lopMode;
 
-    private double clawPosition = 0;
-    private double wristPosition = 0.32;
+    private double clawPosition = 0.7;
+    private double wristPosition = 0.32;//change init pos
+    private boolean clawOpen = true;
 
     public Claw(HardwareMap hardwareMap, OpMode opMode){
         clawDrive = hardwareMap.get(Servo.class, "center_claw");
@@ -35,16 +36,26 @@ public class Claw {
             }
         }
     }
+    public void setWristPosition(double newWristPosition){
+        wristPosition = newWristPosition;
+    }
+
+    public void toggleClaw(){
+        if (clawOpen){
+            closeClaw();
+        }
+        else{
+            openClaw();
+        }
+    }
 
     public void openClaw(){
         clawPosition = 0.7;
+        clawOpen = true;
     }
 
     public void closeClaw(){
         clawPosition = 0.58;
-    }
-
-    public void setWristPosition(double newWristPosition){
-        wristPosition = newWristPosition;
+        clawOpen = false;
     }
 }

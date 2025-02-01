@@ -11,7 +11,6 @@ public class Slides {
     public DcMotorEx leftSlideDrive;
     public DcMotorEx rightSlideDrive;
     public TouchSensor slideLimit;
-    //public DcMotorEx wormDrive;
 
     OpMode lopMode;
 
@@ -20,7 +19,6 @@ public class Slides {
     public Slides(HardwareMap hardwareMap, OpMode opMode){
         leftSlideDrive = hardwareMap.get(DcMotorEx.class, "left_slide");
         rightSlideDrive = hardwareMap.get(DcMotorEx.class, "right_slide");
-        //wormDrive = hardwareMap.get(DcMotorEx.class, "center_arm");
         slideLimit = hardwareMap.get(TouchSensor.class, "armLimitLeft");
 
         leftSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -38,7 +36,6 @@ public class Slides {
 
         leftSlideDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         rightSlideDrive.setDirection(DcMotorSimple.Direction.FORWARD);
-        //wormDrive.setDirection(DcMotorSimple.Direction.FORWARD);
         this.lopMode = opMode;
     }
 
@@ -91,6 +88,17 @@ public class Slides {
                 target = 1;
             default:
                 break;
+        }
+    }
+
+    public void slideLimit(int limit){
+        if (rightSlideDrive.getCurrentPosition() > limit){
+            rightSlideDrive.setTargetPosition(limit);
+            leftSlideDrive.setTargetPosition(limit);
+            rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightSlideDrive.setPower(1);
+            leftSlideDrive.setPower(1);
         }
     }
 
