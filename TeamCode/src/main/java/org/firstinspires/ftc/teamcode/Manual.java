@@ -114,7 +114,7 @@ public class Manual extends OpMode {
             claw.toggleClaw();
         }
         //horizontal limit
-        if (arm.wormDrive.getCurrentPosition() > 830){
+        if (arm.wormDrive.getCurrentPosition() > 830) {
             slides.slideLimit(1550);
         }
         //--------------------------presets-----------------------
