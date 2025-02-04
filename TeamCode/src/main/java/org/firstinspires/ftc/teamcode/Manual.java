@@ -117,7 +117,7 @@ public class Manual extends OpMode {
             claw.toggleClaw();
         }
         //horizontal limit
-        if (arm.wormDrive.getCurrentPosition() > 830) {
+        if (arm.wormDrive.getCurrentPosition() < 830) {
             slides.slideLimit(1550);
         }
         //--------------------------presets-----------------------
@@ -137,6 +137,7 @@ public class Manual extends OpMode {
         else if(gamepad2.y){
             slides.setSlidePosition(Slides.SlidePositions.CHAMBER);
             arm.setArmPosition(Arm.ArmPositions.CHAMBER);
+            claw.setWristPosition(.4587);
         }
 
         telemetry.addLine()

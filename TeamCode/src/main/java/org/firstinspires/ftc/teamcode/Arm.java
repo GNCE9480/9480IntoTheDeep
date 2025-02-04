@@ -66,7 +66,7 @@ public class Arm {
                 target = 192;
                 break;
             case CHAMBER:
-                target = 2;
+                target = 968;
                 break;
             default:
                 break;

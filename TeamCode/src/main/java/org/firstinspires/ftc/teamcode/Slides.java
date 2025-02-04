@@ -85,7 +85,7 @@ public class Slides {
                 target = 0;
                 break;
             case CHAMBER:
-                target = 1;
+                target = 753;
             default:
                 break;
         }
