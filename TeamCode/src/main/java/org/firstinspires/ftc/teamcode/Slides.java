@@ -46,6 +46,8 @@ public class Slides {
             target = 50;
         }
 
+
+
         if(Math.abs(lopMode.gamepad2.left_trigger) > 0.1 || Math.abs(lopMode.gamepad2.right_trigger) > 0.1){
             final double sensitivity = 0.8;
             leftSlideDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -91,16 +93,14 @@ public class Slides {
         }
     }
 
-    public void slideLimit(int limit){
-        if (rightSlideDrive.getCurrentPosition() > limit){
-            rightSlideDrive.setTargetPosition(limit);
-            leftSlideDrive.setTargetPosition(limit);
-            rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            rightSlideDrive.setPower(1);
-            leftSlideDrive.setPower(1);
+    public void slideLimit(){
+        rightSlideDrive.setTargetPosition(1550);
+        leftSlideDrive.setTargetPosition(1550);
+        rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightSlideDrive.setPower(1);
+        leftSlideDrive.setPower(1);
         }
-    }
 
     public int getTarget(){
         return target;

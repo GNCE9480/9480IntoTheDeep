@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /*
@@ -66,10 +67,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Manual extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
-    //public  DcMotor leftFrontDrive = null;
-    //public DcMotor leftBackDrive = null;
-    //public DcMotor rightFrontDrive = null;
-    //public DcMotor rightBackDrive = null;
+//    public  DcMotor leftFrontDrive = null;
+//    public DcMotor leftBackDrive = null;
+//    public DcMotor rightFrontDrive = null;
+//    public DcMotor rightBackDrive = null;
     double drive = 0;
     double strafe = 0;
     double turn = 0;
@@ -79,21 +80,21 @@ public class Manual extends OpMode {
     Slides slides;
     Claw claw;
     Arm arm;
-    Bot bot;
+   Bot bot;
 
 
     @Override
     public void init(){
-        /*
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
-        leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
-        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-        leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
-         */
+//
+//        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
+//        leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
+//        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
+//        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+//        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+//        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
+//        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
+//        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+
 
         claw = new Claw(hardwareMap, this);
         slides = new Slides(hardwareMap, this);
@@ -104,21 +105,25 @@ public class Manual extends OpMode {
         telemetry.update();
     }
 
+
     @Override
     public void loop() {
         bot.moveRobot();
-        slides.HoldLift();
+
         claw.clawControls();
         claw.wristControls();
         arm.HoldArm();
+        bot.moveRobot();
 
-        if (gamepad2.back) bot.reset();
         if (gamepad2.right_bumper) {
             claw.toggleClaw();
         }
         //horizontal limit
-        if (arm.wormDrive.getCurrentPosition() < 830) {
-            slides.slideLimit(1550);
+        if ((arm.wormDrive.getCurrentPosition() < 830) && slides.rightSlideDrive.getCurrentPosition() > 1550) {
+            slides.slideLimit();
+        }
+        else{
+            slides.HoldLift();
         }
         //--------------------------presets-----------------------
         if(gamepad2.dpad_down) slides.setSlidePosition(Slides.SlidePositions.DOWN);
@@ -143,10 +148,10 @@ public class Manual extends OpMode {
         telemetry.addLine()
                         .addData("leftTrigger", gamepad2.left_trigger)
                         .addData("rightTrigger", gamepad2.right_trigger);
-        telemetry.addData("left front", bot.leftFrontDrive.getCurrentPosition());
+        /*telemetry.addData("left front", bot.leftFrontDrive.getCurrentPosition());
         telemetry.addData("right front", bot.rightFrontDrive.getCurrentPosition());
         telemetry.addData("right back", bot.rightBackDrive.getCurrentPosition());
-        telemetry.addData("left back", bot.leftBackDrive.getCurrentPosition());
+        telemetry.addData("left back", bot.leftBackDrive.getCurrentPosition());*/
 
         telemetry.addData("current slide target", slides.getTarget());
         telemetry.addData("arm target", arm.getTarget());
@@ -165,55 +170,7 @@ public class Manual extends OpMode {
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.update();
     }
-    /*
-    public void moveRobot(){
-        double axial    =  gamepad1.left_stick_y;
-        double lateral  =  gamepad1.left_stick_x;
-        double yaw      =  gamepad1.right_stick_x;
 
-        // Combine the joystick requests for each axis-motion to determine each wheel's power.
-        // Set up a variable for each drive wheel to save the power level for telemetry.
-        double leftFrontPower  = axial + lateral + yaw;
-        double rightFrontPower = axial - lateral - yaw;
-        double leftBackPower   = axial - lateral + yaw;
-        double rightBackPower  = axial + lateral - yaw;
-
-        // Normalize the values so no wheel power exceeds 100%
-        // This ensures that the robot maintains the desired motion.
-        double max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
-        max = Math.max(max, Math.abs(leftBackPower));
-        max = Math.max(max, Math.abs(rightBackPower));
-
-        if (max > 1.0) {
-            leftFrontPower  /= max;
-            rightFrontPower /= max;
-            leftBackPower   /= max;
-            rightBackPower  /= max;
-        }
-        // Send calculated power to wheels
-        leftFrontDrive.setPower(leftFrontPower*0.75); //reduce speed here if needed
-        rightFrontDrive.setPower(rightFrontPower*0.75);
-        leftBackDrive.setPower(leftBackPower*0.75);
-        rightBackDrive.setPower(rightBackPower*0.75);
-
-        // Show the wheel power.
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
-        telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-
-        if(gamepad1.back){
-            leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-    }
-     */
 
     //----------------------------conversions--------------------------
     private int slideToClicks(double inch){
