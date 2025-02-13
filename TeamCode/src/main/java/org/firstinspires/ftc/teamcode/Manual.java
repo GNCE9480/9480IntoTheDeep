@@ -35,6 +35,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Claw;
+
 /*
  * This file contains an example of a Linear "OpMode".
  * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
@@ -110,14 +112,10 @@ public class Manual extends OpMode {
     public void loop() {
         bot.moveRobot();
 
-        claw.clawControls();
         claw.wristControls();
         arm.HoldArm();
         bot.moveRobot();
 
-        if (gamepad2.right_bumper) {
-            claw.toggleClaw();
-        }
         //horizontal limit
         if ((arm.wormDrive.getCurrentPosition() < 830) && slides.rightSlideDrive.getCurrentPosition() > 1550) {
             slides.slideLimit();
@@ -125,6 +123,15 @@ public class Manual extends OpMode {
         else{
             slides.HoldLift();
         }
+
+        //claw positions
+        if (gamepad2.right_bumper){
+            claw.setClawPosition(0.7);
+        }
+        else if(gamepad2.left_bumper){
+            claw.setClawPosition(0.58);
+        }
+
         //--------------------------presets-----------------------
         if(gamepad2.dpad_down) slides.setSlidePosition(Slides.SlidePositions.DOWN);
         else if(gamepad2.dpad_left) slides.setSlidePosition(Slides.SlidePositions.MIDDLE);
