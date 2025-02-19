@@ -46,10 +46,10 @@ public class AutoRed extends LinearOpMode {
         slideLimit = hardwareMap.get(TouchSensor.class, "armLimitLeft");
 
 
-        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
         //man.armInit();
         waitForStart();
 
@@ -57,7 +57,7 @@ public class AutoRed extends LinearOpMode {
 
         moveArm(100, 0.5);
 
-        driveToClicks(200,200,200,200, 0.5);
+        driveToClicks(1000,1000,1000,1000, 1);
 
 
 

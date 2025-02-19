@@ -93,7 +93,7 @@ public class Slides {
         }
     }
 
-    public void slideLimit(){
+    public void slideLimitUse(){
         rightSlideDrive.setTargetPosition(1550);
         leftSlideDrive.setTargetPosition(1550);
         rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);

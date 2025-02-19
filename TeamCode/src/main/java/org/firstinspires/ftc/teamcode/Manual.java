@@ -32,10 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.teamcode.Claw;
 
 /*
  * This file contains an example of a Linear "OpMode".
@@ -82,20 +79,12 @@ public class Manual extends OpMode {
     Slides slides;
     Claw claw;
     Arm arm;
-   Bot bot;
+    Bot bot;
 
 
     @Override
     public void init(){
-//
-//        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
-//        leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
-//        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
-//        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
-//        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-//        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
-//        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
-//        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+
 
 
         claw = new Claw(hardwareMap, this);
@@ -116,9 +105,23 @@ public class Manual extends OpMode {
         arm.HoldArm();
         bot.moveRobot();
 
+        //reset motors
+        if (gamepad2.back || gamepad1.back){
+            bot.leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            bot.leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            bot.rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            bot.rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            bot.leftBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            bot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            bot.rightBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            bot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER
+            );
+        }
+
         //horizontal limit
         if ((arm.wormDrive.getCurrentPosition() < 830) && slides.rightSlideDrive.getCurrentPosition() > 1550) {
-            slides.slideLimit();
+            slides.slideLimitUse();
         }
         else{
             slides.HoldLift();
@@ -152,6 +155,14 @@ public class Manual extends OpMode {
             claw.setWristPosition(.4587);
         }
 
+
+
+
+        telemetry.addData("Left Front", bot.leftFrontDrive.getCurrentPosition());
+        telemetry.addData("left back", bot.leftBackDrive.getCurrentPosition());
+        telemetry.addData("right front", bot.rightFrontDrive.getCurrentPosition());
+        telemetry.addData("right back", bot.rightBackDrive.getCurrentPosition());
+
         telemetry.addLine()
                         .addData("leftTrigger", gamepad2.left_trigger)
                         .addData("rightTrigger", gamepad2.right_trigger);
@@ -176,6 +187,8 @@ public class Manual extends OpMode {
         telemetry.addData("claw", claw.clawDrive.getPosition());
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.update();
+
+
     }
 
 

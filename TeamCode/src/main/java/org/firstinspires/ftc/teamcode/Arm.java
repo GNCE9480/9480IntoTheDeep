@@ -55,6 +55,7 @@ public class Arm {
         SAMPLE,
         SPECIMEN,
         CHAMBER,
+        BUCKET,
     }
 
     public void setArmPosition(ArmPositions targetSlidePosition){
@@ -67,6 +68,9 @@ public class Arm {
                 break;
             case CHAMBER:
                 target = 968;
+                break;
+            case BUCKET:
+                target = 1940;
                 break;
             default:
                 break;
