@@ -14,7 +14,7 @@ public class Slides {
 
     OpMode lopMode;
 
-    private int target = 0;
+    int target = 0;
 
     public Slides(HardwareMap hardwareMap, OpMode opMode){
         leftSlideDrive = hardwareMap.get(DcMotorEx.class, "left_slide");
@@ -73,6 +73,7 @@ public class Slides {
         MIDDLE,
         UP,
         CHAMBER,
+        FARUP
     }
 
     public void setSlidePosition(SlidePositions targetSlidePosition){
@@ -88,6 +89,8 @@ public class Slides {
                 break;
             case CHAMBER:
                 target = 753;
+            case FARUP:
+                target = 2800;
             default:
                 break;
         }

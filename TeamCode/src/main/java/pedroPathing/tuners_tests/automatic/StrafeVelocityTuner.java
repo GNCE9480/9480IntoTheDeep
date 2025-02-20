@@ -18,6 +18,7 @@ import com.pedropathing.pathgen.MathFunctions;
 import com.pedropathing.pathgen.Vector;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -50,6 +51,7 @@ import pedroPathing.constants.LConstants;
  */
 @Config
 @Autonomous(name = "Strafe Velocity Tuner", group = "Automatic Tuners")
+@Disabled
 public class StrafeVelocityTuner extends OpMode {
     private ArrayList<Double> velocities = new ArrayList<>();
 

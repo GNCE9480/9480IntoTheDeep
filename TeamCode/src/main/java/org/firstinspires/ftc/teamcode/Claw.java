@@ -14,7 +14,7 @@ public class Claw {
     OpMode lopMode;
 
     private double clawPosition = 0.7;
-    private double wristPosition = 0.5;//change init pos
+    private double wristPosition = 0.35;//change init pos
     private boolean clawOpen = true;
 
     public Claw(HardwareMap hardwareMap, OpMode opMode){

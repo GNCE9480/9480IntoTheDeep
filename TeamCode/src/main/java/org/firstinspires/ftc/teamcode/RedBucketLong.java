@@ -2,20 +2,14 @@ package org.firstinspires.ftc.teamcode;
 
 //import org.firstinspires.ftc.teamcode.CoreOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Arm;
 
-
-
-@Autonomous(name="Bucket Auto SHORT")
-public class RedBucket extends LinearOpMode {
+@Autonomous(name="Bucket Auto LONG")
+public class RedBucketLong extends LinearOpMode {
     //Manual man = new Manual();
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -41,9 +35,9 @@ public class RedBucket extends LinearOpMode {
         bot = new Bot(hardwareMap, this);
 
         telemetry.addData("Status", "Initialized");
-        telemetry.addLine("this auto will score 11 points max"
-        +"putting the preloaded sample in high bucket"
-        +"then getting a L1 ascent. ");
+        telemetry.addLine("this auto will score 19 points max"
+        +" putting the preloaded sample in high bucket"
+        +" then getting one more sample then getting a L1 ascent. ");
 
         telemetry.addData("claw pos", clawDrive.getPosition());
         telemetry.addData("claw subclass pos", claw.clawDrive.getPosition());
@@ -61,8 +55,7 @@ public class RedBucket extends LinearOpMode {
         armToBucket();
         sleep(2000);
         driveToClicks(-650, -650, -650,-650, 0.7);
-        driveToClicks(-600, -600, 600,600, 0.7);
-        driveToClicks(-100, -100, 100, 100, 0.5);
+        driveToClicks(-550, -550, 550,550, 0.7);
         //slides.setSlidePosition(3000);
         //arm.setArmPosition(Arm.ArmPositions.BUCKET);
         sleep(1000);
@@ -74,23 +67,7 @@ public class RedBucket extends LinearOpMode {
         sleep(1000);
         armToDrive();
 
-        driveToClicks(1300, 1300, -1300, -1300, 0.5);
-
-        driveToClicks(-2330, -2330, -2330, -2330, 0.5);
-        driveToClicks(950, 950, -950, -950, 0.5);
-        driveToClicks(-900, -900, -900, -900, 0.5);
-        arm.setArmPosition(Arm.ArmPositions.ASCENT);
-        claw.wristDrive.setPosition(0.46);
-        updateSlideArm();
-
-        sleep(1000);
-
-        //2350 , ----
-        //950, ++--
-        //600, ----
-        //arm 1320
-        //wrist 0.46
-
+        driveToClicks(1250, 1250, -1250, -1250, 0.5);
 
 //        driveToClicks(370, -370, -370, 370, 0.5);
 //

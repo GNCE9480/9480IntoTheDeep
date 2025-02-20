@@ -120,7 +120,7 @@ public class Manual extends OpMode {
         }
 
         //horizontal limit
-        if ((arm.wormDrive.getCurrentPosition() < 830) && slides.rightSlideDrive.getCurrentPosition() > 1550) {
+        if ((arm.wormDrive.getCurrentPosition() < 830) && slides.rightSlideDrive.getCurrentPosition() > 3050) {
             slides.slideLimitUse();
         }
         else{
@@ -139,6 +139,7 @@ public class Manual extends OpMode {
         if(gamepad2.dpad_down) slides.setSlidePosition(Slides.SlidePositions.DOWN);
         else if(gamepad2.dpad_left) slides.setSlidePosition(Slides.SlidePositions.MIDDLE);
         else if(gamepad2.dpad_up) slides.setSlidePosition(Slides.SlidePositions.UP);
+        else if (gamepad2.dpad_right) slides.setSlidePosition(Slides.SlidePositions.CHAMBER);
         else if(gamepad2.a) {
             slides.setSlidePosition(Slides.SlidePositions.DOWN);
             arm.setArmPosition(Arm.ArmPositions.SAMPLE);

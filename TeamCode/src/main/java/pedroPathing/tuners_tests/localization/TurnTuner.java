@@ -8,6 +8,7 @@ import com.pedropathing.util.Constants;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.pedropathing.util.Drawing;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -30,6 +31,7 @@ import pedroPathing.constants.LConstants;
  */
 @Config
 @Autonomous(name = "Turn Localizer Tuner", group = ".Localization")
+@Disabled
 public class TurnTuner extends OpMode {
     private PoseUpdater poseUpdater;
     private DashboardPoseTracker dashboardPoseTracker;
