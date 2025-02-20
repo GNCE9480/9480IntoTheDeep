@@ -62,6 +62,7 @@ public class RedBucket extends LinearOpMode {
         sleep(2000);
         driveToClicks(-650, -650, -650,-650, 0.7);
         driveToClicks(-600, -600, 600,600, 0.7);
+
         driveToClicks(-100, -100, 100, 100, 0.5);
         //slides.setSlidePosition(3000);
         //arm.setArmPosition(Arm.ArmPositions.BUCKET);

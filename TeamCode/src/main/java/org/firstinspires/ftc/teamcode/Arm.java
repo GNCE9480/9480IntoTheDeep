@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class Arm {
     public DcMotorEx wormDrive;
     OpMode lopMode;
-     int target = 0;
+     int target = 660;
     public Arm(HardwareMap hardwareMap, OpMode opMode){
         wormDrive = hardwareMap.get(DcMotorEx.class, "center_arm");
         wormDrive.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -21,7 +21,7 @@ public class Arm {
     }
     public void HoldArm(){
         final int UpperLimit = 2500;
-        final int LowerLimit = -300;
+        final int LowerLimit = -600;
 
         if(lopMode.gamepad2.left_stick_y != 0){
             if(wormDrive.getCurrentPosition() > UpperLimit) {
@@ -62,13 +62,13 @@ public class Arm {
     public void setArmPosition(ArmPositions targetSlidePosition){
         switch(targetSlidePosition){
             case SAMPLE:
-                target = 1;
+                target = 660;
                 break;
             case SPECIMEN:
-                target = 192;
+                target = 990;
                 break;
             case CHAMBER:
-                target = 968;
+                target = 2089;
                 break;
             case BUCKET:
                 target = 1940;

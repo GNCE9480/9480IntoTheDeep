@@ -88,7 +88,7 @@ public class Slides {
                 target = 0;
                 break;
             case CHAMBER:
-                target = 753;
+                target = 896;
             case FARUP:
                 target = 2800;
             default:

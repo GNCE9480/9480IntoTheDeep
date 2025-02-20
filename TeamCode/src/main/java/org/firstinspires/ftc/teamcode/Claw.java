@@ -14,7 +14,7 @@ public class Claw {
     OpMode lopMode;
 
     private double clawPosition = 0.7;
-    private double wristPosition = 0.35;//change init pos
+    private double wristPosition = 0.56;
     private boolean clawOpen = true;
 
     public Claw(HardwareMap hardwareMap, OpMode opMode){
@@ -23,16 +23,14 @@ public class Claw {
         this.lopMode = opMode;
     }
 
-
-
     public void wristControls(){
         if (Math.abs(lopMode.gamepad2.right_stick_y) > 0.03){
             wristPosition = wristDrive.getPosition() + lopMode.gamepad2.right_stick_y * 0.01;
-            if (wristPosition >= 0.7){
-                wristPosition = 0.7;
+            if (wristPosition >= 0.56){
+                wristPosition = 0.56;
             }
-            else if (wristPosition <= 0.3){
-                wristPosition = 0.3;
+            else if (wristPosition <= 0.35){
+                wristPosition = 0.35;
             }
         }
         wristDrive.setPosition(wristPosition);
@@ -52,7 +50,6 @@ public class Claw {
 
     public void openClaw(){
         clawPosition = 0.7;
-
         clawOpen = true;
     }
 
@@ -60,6 +57,7 @@ public class Claw {
         clawPosition = 0.58;
         clawOpen = false;
     }
+
     public void setClawPosition(double pos){
         clawPosition = pos;
         clawDrive.setPosition(clawPosition);

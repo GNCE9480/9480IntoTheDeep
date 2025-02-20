@@ -84,9 +84,6 @@ public class Manual extends OpMode {
 
     @Override
     public void init(){
-
-
-
         claw = new Claw(hardwareMap, this);
         slides = new Slides(hardwareMap, this);
         arm = new Arm(hardwareMap, this);
@@ -120,7 +117,7 @@ public class Manual extends OpMode {
         }
 
         //horizontal limit
-        if ((arm.wormDrive.getCurrentPosition() < 830) && slides.rightSlideDrive.getCurrentPosition() > 3050) {
+        if ((arm.wormDrive.getCurrentPosition() < 830) && slides.rightSlideDrive.getCurrentPosition() > 1550) {
             slides.slideLimitUse();
         }
         else{
@@ -129,6 +126,7 @@ public class Manual extends OpMode {
 
         //claw positions
         if (gamepad2.right_bumper){
+            //claw.toggleClaw();
             claw.setClawPosition(0.7);
         }
         else if(gamepad2.left_bumper){
@@ -143,21 +141,23 @@ public class Manual extends OpMode {
         else if(gamepad2.a) {
             slides.setSlidePosition(Slides.SlidePositions.DOWN);
             arm.setArmPosition(Arm.ArmPositions.SAMPLE);
+            claw.setWristPosition(0.49);
+            claw.openClaw();
         }
         else if(gamepad2.b) {
             slides.setSlidePosition(Slides.SlidePositions.DOWN);
             arm.setArmPosition(Arm.ArmPositions.SPECIMEN);
-            claw.setWristPosition(0.43);
+            claw.setWristPosition(0.48);
             claw.openClaw();
+        }
+        else if (gamepad2.x){
+            claw.setWristPosition(0.41);
         }
         else if(gamepad2.y){
             slides.setSlidePosition(Slides.SlidePositions.CHAMBER);
             arm.setArmPosition(Arm.ArmPositions.CHAMBER);
-            claw.setWristPosition(.4587);
+            claw.setWristPosition(.46);
         }
-
-
-
 
         telemetry.addData("Left Front", bot.leftFrontDrive.getCurrentPosition());
         telemetry.addData("left back", bot.leftBackDrive.getCurrentPosition());
