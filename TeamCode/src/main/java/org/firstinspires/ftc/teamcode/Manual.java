@@ -34,34 +34,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-/*
- * This file contains an example of a Linear "OpMode".
- * An OpMode is a 'program' that runs in either the autonomous or the teleop period of an FTC match.
- * The names of OpModes appear on the menu of the FTC Driver Station.
- * When a selection is made from the menu, the corresponding OpMode is executed.
- *
- * This particular OpMode illustrates driving a 4-motor Omni-Directional (or Holonomic) robot.
- * This code will work with either a Mecanum-Drive or an X-Drive train.
- * Both of these drives are illustrated at https://gm0.org/en/latest/docs/robot-design/drivetrains/holonomic.html
- * Note that a Mecanum drive must display an X roller-pattern when viewed from above.
- *
- * Also note that it is critical to set the correct rotation direction for each motor.  See details below.
- *
- * Holonomic drives provide the ability for the robot to move in three axes (directions) simultaneously.
- * Each motion axis is controlled by one Joystick axis.
- *
- * 1) Axial:    Driving forward and backward               Left-joystick Forward/Backward
- * 2) Lateral:  Strafing right and left                     Left-joystick Right and Left
- * 3) Yaw:      Rotating Clockwise and counter clockwise    Right-joystick Right and Left
- *
- * This code is written assuming that the right-side motors need to be reversed for the robot to drive forward.
- * When you first test your robot, if it moves backward when you push the left stick forward, then you must flip
- * the direction of all 4 motors (see code below).
- *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
- */
-
 @TeleOp(name="9480 Manual", group="Linear OpMode")
 
 public class Manual extends OpMode {
@@ -84,6 +56,7 @@ public class Manual extends OpMode {
 
     @Override
     public void init(){
+        waitTime = new ElapsedTime();
         claw = new Claw(hardwareMap, this);
         slides = new Slides(hardwareMap, this);
         arm = new Arm(hardwareMap, this);
@@ -91,6 +64,20 @@ public class Manual extends OpMode {
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+
+        arm.setArmPosition(Arm.ArmPositions.RESET);
+        updateArm();
+        arm.wormDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
+/*
+        arm.wormDrive.setTargetPosition(-1260);
+        arm.wormDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        arm.wormDrive.setPower(1);
+        arm.wormDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.wormDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+*/
+
     }
 
 
@@ -103,7 +90,7 @@ public class Manual extends OpMode {
         bot.moveRobot();
 
         //reset motors
-        if (gamepad2.back || gamepad1.back){
+        if (gamepad1.back){
             bot.leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             bot.leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             bot.rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -112,8 +99,16 @@ public class Manual extends OpMode {
             bot.leftBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             bot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             bot.rightBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            bot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER
-            );
+            bot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+        else if (gamepad2.back){
+            arm.wormDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            slides.leftSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            slides.rightSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            arm.wormDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            slides.leftSlideDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            slides.rightSlideDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
         //horizontal limit
@@ -210,5 +205,12 @@ public class Manual extends OpMode {
         double slideInch = slideClicks / 84.7 + slideMinInches;
         double wormDeg = (-401 * wormClicks +200)+0;
         return Math.cos(Math.toRadians(wormDeg))*slideInch;
+    }
+    public void updateArm(){
+
+        arm.wormDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        arm.wormDrive.setTargetPosition(arm.target);
+        arm.wormDrive.setPower(1);
+
     }
 }

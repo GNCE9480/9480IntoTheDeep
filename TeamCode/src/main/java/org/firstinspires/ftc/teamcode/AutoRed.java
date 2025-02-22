@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 
 
-@Autonomous(name="AutoRedClose")
+@Autonomous(name="AutoRedClose", preselectTeleOp = "9480 Manual")
 public class AutoRed extends LinearOpMode {
     Manual man = new Manual();
 

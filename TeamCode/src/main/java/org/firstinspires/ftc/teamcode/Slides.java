@@ -73,13 +73,13 @@ public class Slides {
         MIDDLE,
         UP,
         CHAMBER,
-        FARUP
+        MD, //middle down
     }
 
     public void setSlidePosition(SlidePositions targetSlidePosition){
         switch(targetSlidePosition){
             case UP:
-                target = 2000;
+                target = 2800;
                 break;
             case MIDDLE:
                 target = 1000;
@@ -88,9 +88,9 @@ public class Slides {
                 target = 0;
                 break;
             case CHAMBER:
-                target = 896;
-            case FARUP:
-                target = 2800;
+                target = 796;
+            case MD:
+                target = 500;
             default:
                 break;
         }

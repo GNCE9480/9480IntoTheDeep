@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class Arm {
     public DcMotorEx wormDrive;
     OpMode lopMode;
-     int target = 660;
+    int target = 0;
     public Arm(HardwareMap hardwareMap, OpMode opMode){
         wormDrive = hardwareMap.get(DcMotorEx.class, "center_arm");
         wormDrive.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -57,6 +57,8 @@ public class Arm {
         CHAMBER,
         BUCKET,
         ASCENT,
+        HORI,
+        RESET,
     }
 
     public void setArmPosition(ArmPositions targetSlidePosition){
@@ -74,7 +76,13 @@ public class Arm {
                 target = 1940;
                 break;
             case ASCENT:
-                target = 1340;
+                target = 1300;
+                break;
+            case HORI:
+                target = 2;
+                break;
+            case RESET:
+                target = -1280;
                 break;
             default:
                 break;

@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Arm;
 
 
 
-@Autonomous(name="Bucket Auto SHORT")
+@Autonomous(name="Bucket Auto SHORT", preselectTeleOp = "9480 Manual")
 public class RedBucket extends LinearOpMode {
     //Manual man = new Manual();
 
@@ -60,8 +60,8 @@ public class RedBucket extends LinearOpMode {
         claw.wristDrive.setPosition(0.36);
         armToBucket();
         sleep(2000);
-        driveToClicks(-650, -650, -650,-650, 0.7);
-        driveToClicks(-600, -600, 600,600, 0.7);
+        driveToClicks(-655, -655, -655,-655, 0.7);
+        driveToClicks(-585, -585, 585,585, 0.7);
 
         driveToClicks(-100, -100, 100, 100, 0.5);
         //slides.setSlidePosition(3000);
@@ -77,32 +77,18 @@ public class RedBucket extends LinearOpMode {
 
         driveToClicks(1300, 1300, -1300, -1300, 0.5);
 
-        driveToClicks(-2330, -2330, -2330, -2330, 0.5);
-        driveToClicks(950, 950, -950, -950, 0.5);
-        driveToClicks(-900, -900, -900, -900, 0.5);
-        arm.setArmPosition(Arm.ArmPositions.ASCENT);
-        claw.wristDrive.setPosition(0.46);
-        updateSlideArm();
+        driveToClicks(-2300, -2300, -2300, -2300, 0.5);
+        //driving forward
+        driveToClicks(985, 985, -985, -985, 0.5);
+        //driveToClicks(-2000, -2000, -2000, -2000, 0.5);
+        //arm.setArmPosition(Arm.ArmPositions.ASCENT);
 
+        //updateSlideArm();
         sleep(1000);
-
-        //2350 , ----
-        //950, ++--
-        //600, ----
-        //arm 1320
-        //wrist 0.46
-
-
-//        driveToClicks(370, -370, -370, 370, 0.5);
-//
-//        driveToClicks(1310, 1465, -1310, -1465, 0.5);
-//        driveToClicks(-900, -900, -900, -900, 0.5);
-//         armToDrive();
-//        sleep(1000);
-//        claw.wristDrive.setPosition(0.4105);
-//        clawDrive.setPosition(0.58);
-
-
+        armToAscend();
+        claw.wristDrive.setPosition(0.4641);
+        driveToClicks(-2000, -2000, -2000, -2000, 0.5);
+        sleep(1000);
     }
 
     private void stopAndResetMotors(){
@@ -133,40 +119,22 @@ public class RedBucket extends LinearOpMode {
 
 
     }
-    public void moveArm(int wormPos, double wormPow, int slidesPos, double slidePow,  double wristPos){
 
-
-
-        slides.leftSlideDrive.setTargetPosition(slidesPos);
-        slides.rightSlideDrive.setTargetPosition(slidesPos);
-
-        slides.leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slides.rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        slides.leftSlideDrive.setPower(slidePow);
-        slides.rightSlideDrive.setPower(slidePow);
-
-        slides.leftSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        slides.rightSlideDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-
-        while (arm.wormDrive.isBusy()  &&  slides.leftSlideDrive.isBusy()  &&  slides.rightSlideDrive.isBusy()){
-
-        }
-        claw.setWristPosition(wristPos);
-    }
     public void armToBucket(){
-        slides.setSlidePosition(Slides.SlidePositions.CHAMBER);
+        slides.setSlidePosition(Slides.SlidePositions.UP);
         arm.setArmPosition(Arm.ArmPositions.BUCKET);
         updateSlideArm();
+    }
 
-
+    public void armToAscend(){
+        arm.setArmPosition(Arm.ArmPositions.ASCENT);
+        updateSlideArm();
     }
 
     public void armToDrive(){
-        while (!slides.slideLimit.isPressed()){
-            slides.leftSlideDrive.setTargetPosition(slides.leftSlideDrive.getCurrentPosition()-100);
-            slides.rightSlideDrive.setTargetPosition(slides.rightSlideDrive.getCurrentPosition()-100);
+        while (!slides.slideLimit.isPressed()) {
+            slides.leftSlideDrive.setTargetPosition(slides.leftSlideDrive.getCurrentPosition() - 100);
+            slides.rightSlideDrive.setTargetPosition(slides.rightSlideDrive.getCurrentPosition() - 100);
 
             slides.leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             slides.rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -178,17 +146,8 @@ public class RedBucket extends LinearOpMode {
         slides.leftSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slides.rightSlideDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slides.target = 50;
-        arm.setArmPosition(Arm.ArmPositions.SAMPLE);
-        /*slides.leftSlideDrive.setTargetPosition(0);
-        slides.rightSlideDrive.setTargetPosition(0);
+        arm.setArmPosition(Arm.ArmPositions.HORI);
 
-        slides.leftSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slides.rightSlideDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        slides.leftSlideDrive.setPower(1);
-        slides.rightSlideDrive.setPower(1);*/
-
-        //slides.setSlidePosition(Slides.SlidePositions.DOWN);
         updateSlideArm();
 
     }
@@ -203,7 +162,6 @@ public class RedBucket extends LinearOpMode {
         arm.wormDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         arm.wormDrive.setTargetPosition(arm.target);
         arm.wormDrive.setPower(1);
-
     }
 
 
